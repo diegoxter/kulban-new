@@ -13,6 +13,9 @@
 # generated files
 **/declarations/
 
+# azle
+.azle/
+
 # rust
 target/
 

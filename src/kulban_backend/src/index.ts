@@ -1,7 +1,13 @@
-import { Canister, query, text } from 'azle';
+import express from "express";
 
-export default Canister({
-    greet: query([text], text, (name) => {
-        return `Hello, ${name}!`;
-    })
-})
+const app = express();
+
+app.get("/", (req, res) => {
+  res.send("Hello world!");
+});
+
+app.use(express.json());
+
+app.use(express.static("/dist"));
+
+app.listen();

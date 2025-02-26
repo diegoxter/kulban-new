@@ -1,27 +1,27 @@
 {
   "canisters": {
     "kulban_backend": {
-      "build": "npx azle kulban_backend",
       "candid": "src/kulban_backend/kulban_backend.did",
       "declarations": {
         "node_compatibility": true
       },
       "gzip": true,
       "main": "src/kulban_backend/src/index.ts",
-      "tech_stack": {
-        "cdk": {
-          "azle": {}
-        },
-        "language": {
-          "javascript": {},
-          "typescript": {}
-        }
-      },
       "type": "azle",
       "custom": {
-        "experimental": true
+        "experimental": true,
+        "candid_gen": "http"
       },
-      "wasm": ".azle/kulban_backend/kulban_backend.wasm"
+      "wasm": ".azle/kulban_backend/kulban_backend.wasm",
+      "tech_stack": {
+        "cdk": {
+           "azle": {}
+        },
+       "language": {
+         "javascript": {},
+         "typescript": {}
+       }
+     }
     },
     "kulban_frontend": {
       "dependencies": [
