@@ -17,7 +17,10 @@
           "typescript": {}
         }
       },
-      "type": "custom",
+      "type": "azle",
+      "custom": {
+        "experimental": true
+      },
       "wasm": ".azle/kulban_backend/kulban_backend.wasm"
     },
     "kulban_frontend": {

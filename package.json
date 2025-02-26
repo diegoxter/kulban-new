@@ -4,16 +4,28 @@
     "npm": ">=7.0.0"
   },
   "name": "kulban",
+  "private": true,
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "prebuild": "npm run prebuild --workspaces --if-present",
     "pretest": "npm run prebuild --workspaces --if-present",
     "start": "npm start --workspaces --if-present",
-    "test": "npm test --workspaces --if-present"
+    "test": "npm test --workspaces --if-present",
+    "dev": "npm run dev --workspaces --if-present",
+    "prepare": "husky"
   },
   "type": "module",
   "workspaces": [
     "src/kulban_backend",
     "src/kulban_frontend"
-  ]
+  ],
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3"
+  },
+  "lint-staged":  {
+     "**/*.{js,ts,svelte}": [
+      "npx eslint --fix --config ./src/kulban_frontend/eslint.config.js"
+    ]
+  }
 }
