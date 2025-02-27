@@ -1,8 +1,8 @@
-<script>
-	import '../index.scss';
-	import { backend } from '$lib/canisters';
+<script lang="ts">
+	import "../index.scss";
+	import { backend } from "$lib/canisters";
 
-	let greeting = '';
+	let greeting = "";
 
 	function onSubmit(event) {
 		const name = event.target.name.value;
