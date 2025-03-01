@@ -25,6 +25,7 @@ contract KanbanProject is AccessControl {
         string category;
         address assigneeAddress;
         TaskState state;
+        bool isActive;
     }
 
     mapping(uint256 => Task) private tasks;
@@ -67,6 +68,7 @@ contract KanbanProject is AccessControl {
         uint256[] memory taskIndexes = new uint256[](newDescriptions.length);
 
         for (uint256 index = 0; index < newDescriptions.length; index++) {
+            require(hasRole(EDITOR_ROLE, newAssignees[index]));
             taskIndexes[index] = _addTask(
                 newDescriptions[index],
                 newCategories[index],
@@ -95,9 +97,17 @@ contract KanbanProject is AccessControl {
                 tasksInfo[i].category,
                 tasksInfo[i].assigneeID,
                 tasksInfo[i].assigneeAddress,
-                tasksInfo[i].state
+                tasksInfo[i].state,
+                tasksInfo[i].isActive
             );
         }
+    }
+
+    function deleteTask(uint256 taskID) public onlyRole(EDITOR_ROLE) {
+      require(taskID <= taskIndex, "deleteTask: Invalid Task ID");
+      require(tasks[taskID].isActive, "deleteTask: Task inactive");
+
+      tasks[taskID].isActive = false;
     }
 
     function editCategory(
@@ -128,15 +138,6 @@ contract KanbanProject is AccessControl {
     }
 
     // Content views
-    function getProjectInfo()
-        public
-        view
-        onlyRole(VIEWER_ROLE)
-        returns (string[] memory, uint256)
-    {
-        return (categories, taskIndex);
-    }
-
     function batchGetTasksInfo(
         uint256[] calldata tasksIds
     ) public view onlyRole(VIEWER_ROLE) returns (Task[] memory) {
@@ -147,6 +148,41 @@ contract KanbanProject is AccessControl {
         }
 
         return _tasks;
+    }
+
+    function getActiveTasks()
+        public
+        view
+        onlyRole(VIEWER_ROLE)
+        returns (Task[] memory)
+    {
+          uint256 activeCount = 0;
+    for (uint256 index = 0; index < taskIndex; index++) {
+        if (tasks[index].isActive) {
+            activeCount++;
+        }
+    }
+
+    Task[] memory activeTasks = new Task[](activeCount);
+
+    uint256 iterator = 0;
+    for (uint256 index = 0; index < taskIndex; index++) {
+        if (tasks[index].isActive) {
+            activeTasks[iterator] = tasks[index];
+            iterator++;
+        }
+    }
+
+        return activeTasks;
+    }
+
+    function getProjectInfo()
+        public
+        view
+        onlyRole(VIEWER_ROLE)
+        returns (string[] memory, uint256)
+    {
+        return (categories, taskIndex);
     }
 
     // User management
@@ -181,7 +217,8 @@ contract KanbanProject is AccessControl {
             assigneeID: _assigneeID,
             category: _category,
             assigneeAddress: _assignee,
-            state: TaskState.Pending
+            state: TaskState.Pending,
+            isActive: true
         });
 
         ++taskIndex;
@@ -202,7 +239,8 @@ contract KanbanProject is AccessControl {
         string calldata _newCategory,
         string calldata _newAssigneeID,
         address _newAssignee,
-        TaskState _newState
+        TaskState _newState,
+        bool _isActive
     ) internal {
         Task storage task = tasks[_taskID];
         require(
@@ -223,6 +261,9 @@ contract KanbanProject is AccessControl {
         }
         if (_newState != task.state) {
             task.state = _newState;
+        }
+        if (_isActive != task.isActive) {
+            task.isActive = _isActive;
         }
     }
 

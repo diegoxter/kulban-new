@@ -15,7 +15,8 @@ contract KanbanProjectTest is Test {
     ) public pure returns (bytes[] memory beforeTestCalldata) {
         if (
             testSelector == this.test_BatchAddTasks.selector ||
-            testSelector == this.test_BatchEditTasks.selector
+            testSelector == this.test_BatchEditTasks.selector ||
+            testSelector == this.test_DeleteTasks.selector
         ) {
             beforeTestCalldata = new bytes[](1);
             beforeTestCalldata[0] = abi.encodeWithSignature(
@@ -76,15 +77,17 @@ contract KanbanProjectTest is Test {
             assigneeID: "",
             category: "",
             assigneeAddress: address(user3),
-            state: KanbanProject.TaskState.InProcess
+            state: KanbanProject.TaskState.InProcess,
+            isActive: true
         });
 
         KanbanProject.Task memory task2 = KanbanProject.Task({
-            description: "Task 1 modified",
+            description: "",
             assigneeID: "",
             category: "Third",
             assigneeAddress: address(0),
-            state: KanbanProject.TaskState.InProcess
+            state: KanbanProject.TaskState.InProcess,
+            isActive: false
         });
 
         KanbanProject.Task memory task3 = KanbanProject.Task({
@@ -92,7 +95,8 @@ contract KanbanProjectTest is Test {
             assigneeID: "3rd Assignee",
             category: "",
             assigneeAddress: address(0),
-            state: KanbanProject.TaskState.InProcess
+            state: KanbanProject.TaskState.Done,
+            isActive: true
         });
         KanbanProject.Task[] memory tasks = new KanbanProject.Task[](3);
         tasks[0] = task1;
@@ -111,8 +115,26 @@ contract KanbanProjectTest is Test {
         );
 
         assertEq(savedTasks[0].description, "Task 1 modified");
+        assertEq(savedTasks[0].assigneeAddress, address(user3));
         assertEq(savedTasks[1].category, "Third");
+        assertEq(savedTasks[1].isActive, false);
         assertEq(savedTasks[2].assigneeID, "3rd Assignee");
+        assertEq(
+            uint8(savedTasks[2].state),
+            uint8(KanbanProject.TaskState.Done)
+        );
+    }
+
+    function test_DeleteTasks() public {
+      project.deleteTask(1);
+      KanbanProject.Task[] memory activeTasks = project.getActiveTasks();
+
+      assertEq(activeTasks.length, 2);
+
+      project.deleteTask(2);
+      KanbanProject.Task[] memory newActiveTasks = project.getActiveTasks();
+
+      assertEq(newActiveTasks.length, 1);
     }
 
     function setBatchAddAndEditTasks() public {
@@ -135,6 +157,14 @@ contract KanbanProjectTest is Test {
         assignees[0] = user1;
         assignees[1] = user2;
         assignees[2] = user3;
+
+        bytes32[] memory _roles = new bytes32[](2);
+        _roles[0] = project.VIEWER_ROLE();
+        _roles[1] = project.EDITOR_ROLE();
+
+        project.grantRoles(user1, _roles);
+        project.grantRoles(user2, _roles);
+        project.grantRoles(user3, _roles);
 
         project.batchAddTask(descriptions, categories, assigneesIDs, assignees);
     }
