@@ -75,7 +75,7 @@ contract KanbanProjectTest is Test {
             description: "Task 1 modified",
             assigneeID: "",
             category: "",
-            assigneeAddress: address(0),
+            assigneeAddress: address(user3),
             state: KanbanProject.TaskState.InProcess
         });
 
@@ -149,6 +149,14 @@ contract KanbanProjectTest is Test {
         project.editCategory(4, newName);
         (string[] memory _prevCategories, ) = project.getProjectInfo();
         assertEq(_prevCategories[_prevCategories.length - 1], newName);
+    }
+
+    function test_RemoveCategory() public {
+        project.removeCategory(3);
+
+        (string[] memory _prevCategories, ) = project.getProjectInfo();
+        assertEq(_prevCategories[2], "Third");
+        assertEq(_prevCategories[3], "Fifth");
     }
 
     function test_RespectsOwnership() public {

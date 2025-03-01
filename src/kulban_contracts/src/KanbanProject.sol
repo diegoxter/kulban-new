@@ -149,12 +149,6 @@ contract KanbanProject is AccessControl {
         return _tasks;
     }
 
-    function _getTaskInfo(uint256 taskId) internal view returns (Task memory) {
-        require(taskId <= taskIndex, "_getTaskInfo: out of array");
-
-        return tasks[taskId];
-    }
-
     // User management
     function grantRoles(
         address user,
