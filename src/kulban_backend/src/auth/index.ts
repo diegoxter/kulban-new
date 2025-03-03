@@ -1,5 +1,6 @@
-import { createHash } from "crypto";
 import { Request, Response, NextFunction } from "express";
+import { createHash } from "crypto";
+import { generateToken, verifyToken } from "./jwtUtils";
 import { SECRET_KEY } from "../config";
 
 const userID = (username: string) =>
@@ -32,7 +33,9 @@ export async function registerUser(username: string, password: string) {
       passwordHash: passwordHash(username, password),
     });
 
-    return token(username, passwordHash(username, password));
+    const jwToken = generateToken(username);
+
+    return jwToken;
   } catch (error) {
     throw new Error(`Couldnt register: ${error}`);
   }
@@ -56,7 +59,9 @@ export async function loginUser(username: string, password: string) {
     if (userEntryToken !== credentialstoken)
       throw new Error("Invalid Credentials");
 
-    return userEntryToken;
+    const jwToken = generateToken(users[userIndex].username);
+
+    return jwToken;
   } catch (error) {
     throw new Error(`Couldnt login: ${error}`);
   }
@@ -66,7 +71,8 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
   const token = req.headers["authorization"];
   if (!token) return res.sendStatus(401);
 
-  console.log(token);
+  const userID = verifyToken(token.split(" ")[1]);
+  if (!userID) return res.sendStatus(403);
 
   // @ts-expect-error we sending this to the req
   req.user = userID;

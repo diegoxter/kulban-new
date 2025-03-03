@@ -10,7 +10,8 @@
       "type": "azle",
       "custom": {
         "experimental": true,
-        "candid_gen": "http"
+        "candid_gen": "http",
+        "env": ["BACKEND_SALT"]
       },
       "tech_stack": {
         "cdk": {
