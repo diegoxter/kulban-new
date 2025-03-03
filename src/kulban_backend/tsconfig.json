@@ -1,9 +1,14 @@
 {
     "compilerOptions": {
         "strict": true,
+        "resolveJsonModule": true,
         "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
         "target": "ES2024",
-        "module": "ES2022",
+        "module": "CommonJS",
+        "outDir": "./dist",
+        "rootDir": "./src",
         "moduleResolution": "bundler",
         "allowJs": true,
         "noEmit": true,

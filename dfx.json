@@ -6,7 +6,7 @@
         "node_compatibility": true
       },
       "gzip": true,
-      "main": "src/kulban_backend/src/index.ts",
+      "main": "src/kulban_backend/src/main.ts",
       "type": "azle",
       "custom": {
         "experimental": true,
