@@ -2,9 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import { ethers, TransactionReceipt } from "ethers";
 import { abi } from "./UserAuthenticationABI.json";
 import { generateToken, verifyToken } from "./jwtUtils";
-import { SECRET_KEY, RPC_URL, PRIVATE_KEY } from "../config";
-
-const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+import {
+  SECRET_KEY,
+  RPC_URL,
+  PRIVATE_KEY,
+  AUTH_CONTRACT_ADDRESS,
+} from "../config";
 
 const userID = (username: string) => ethers.id(username);
 
@@ -15,7 +18,7 @@ const passwordHash = (username: string, password: string) =>
 export async function registerUser(username: string, password: string) {
   const provider = new ethers.JsonRpcProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
-  const contract = new ethers.Contract(contractAddress, abi, signer);
+  const contract = new ethers.Contract(AUTH_CONTRACT_ADDRESS, abi, signer);
   try {
     const tx = await contract["registerUser"](
       userID(username),
@@ -35,7 +38,7 @@ export async function registerUser(username: string, password: string) {
 
 export async function loginUser(username: string, password: string) {
   const provider = new ethers.JsonRpcProvider(RPC_URL);
-  const contract = new ethers.Contract(contractAddress, abi, provider);
+  const contract = new ethers.Contract(AUTH_CONTRACT_ADDRESS, abi, provider);
   try {
     const validUser = await contract["loginUser"](
       userID(username),

@@ -5,6 +5,9 @@ import "./KanbanProject.sol";
 import {Ownable} from "@openzeppelin-contracts-5.0.2/access/Ownable.sol";
 
 contract Deployer is Ownable {
+    bytes32 public constant VIEWER_ROLE = keccak256("VIEWER_ROLE");
+    uint256 private projectIndex;
+
     struct ProjectInfo {
         address owner;
         address projectAddress;
@@ -12,7 +15,7 @@ contract Deployer is Ownable {
         string projectName;
     }
 
-    mapping(string => ProjectInfo[]) private projectsPerOwnerID;
+    mapping(uint256 => address) private projectsAddressPerIndex;
     mapping(address => ProjectInfo[]) private projectsPerOwnerAddress;
 
     constructor() Ownable(msg.sender) {}
@@ -53,13 +56,10 @@ contract Deployer is Ownable {
             projectsPerOwnerAddress[msg.sender].push(newProject);
         }
 
-        return address(newInstance);
-    }
+        projectsAddressPerIndex[projectIndex] = address(newInstance);
+        projectIndex++;
 
-    function getProjectsPerID(
-        string calldata _ownerID
-    ) public view returns (ProjectInfo[] memory) {
-        return projectsPerOwnerID[_ownerID];
+        return address(newInstance);
     }
 
     function getProjectsPerAddress()
@@ -68,5 +68,28 @@ contract Deployer is Ownable {
         returns (ProjectInfo[] memory)
     {
         return projectsPerOwnerAddress[msg.sender];
+    }
+
+    function getProjectsWhereIDIsViewer(
+        string calldata memberID
+    ) public view returns (address[] memory) {
+        address[] memory projectsAddresses = new address[](projectIndex);
+        uint256 count = 0;
+
+        for (uint256 index = 0; index < projectIndex; index++) {
+            bool idIsViewer = KanbanProject(projectsAddressPerIndex[index])
+                .idIsProjectMember(memberID);
+            if (idIsViewer) {
+                projectsAddresses[count] = projectsAddressPerIndex[index];
+                count++;
+            }
+        }
+
+        address[] memory result = new address[](count);
+        for (uint256 i = 0; i < count; i++) {
+            result[i] = projectsAddresses[i];
+        }
+
+        return result;
     }
 }

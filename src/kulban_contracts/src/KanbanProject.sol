@@ -11,12 +11,19 @@ contract KanbanProject is AccessControl {
     string private ownerID;
     string private projectName;
     string[] private categories;
+    string[] private membersIDs;
+
     uint256 private taskIndex;
 
     enum TaskState {
         Pending,
         InProcess,
         Done
+    }
+
+    struct Member {
+        address memberAddress;
+        bool isActive;
     }
 
     struct Task {
@@ -29,6 +36,7 @@ contract KanbanProject is AccessControl {
     }
 
     mapping(uint256 => Task) private tasks;
+    mapping(string => Member) private members;
 
     constructor(
         address owner,
@@ -39,6 +47,8 @@ contract KanbanProject is AccessControl {
         projectName = _projectName;
         ownerID = _ownerID;
         categories = _categories;
+        members[_ownerID] = Member({memberAddress: owner, isActive: true});
+        membersIDs.push(_ownerID);
 
         _grantRole(OWNER_ROLE, owner);
         _grantRole(EDITOR_ROLE, owner);
@@ -104,10 +114,10 @@ contract KanbanProject is AccessControl {
     }
 
     function deleteTask(uint256 taskID) public onlyRole(EDITOR_ROLE) {
-      require(taskID <= taskIndex, "deleteTask: Invalid Task ID");
-      require(tasks[taskID].isActive, "deleteTask: Task inactive");
+        require(taskID <= taskIndex, "deleteTask: Invalid Task ID");
+        require(tasks[taskID].isActive, "deleteTask: Task inactive");
 
-      tasks[taskID].isActive = false;
+        tasks[taskID].isActive = false;
     }
 
     function editCategory(
@@ -156,22 +166,22 @@ contract KanbanProject is AccessControl {
         onlyRole(VIEWER_ROLE)
         returns (Task[] memory)
     {
-          uint256 activeCount = 0;
-    for (uint256 index = 0; index < taskIndex; index++) {
-        if (tasks[index].isActive) {
-            activeCount++;
+        uint256 activeCount = 0;
+        for (uint256 index = 0; index < taskIndex; index++) {
+            if (tasks[index].isActive) {
+                activeCount++;
+            }
         }
-    }
 
-    Task[] memory activeTasks = new Task[](activeCount);
+        Task[] memory activeTasks = new Task[](activeCount);
 
-    uint256 iterator = 0;
-    for (uint256 index = 0; index < taskIndex; index++) {
-        if (tasks[index].isActive) {
-            activeTasks[iterator] = tasks[index];
-            iterator++;
+        uint256 iterator = 0;
+        for (uint256 index = 0; index < taskIndex; index++) {
+            if (tasks[index].isActive) {
+                activeTasks[iterator] = tasks[index];
+                iterator++;
+            }
         }
-    }
 
         return activeTasks;
     }
@@ -180,23 +190,52 @@ contract KanbanProject is AccessControl {
         public
         view
         onlyRole(VIEWER_ROLE)
-        returns (string[] memory, uint256)
+        returns (string[] memory, uint256, Member[] memory)
     {
-        return (categories, taskIndex);
+        uint256 activeMemberCount = 0;
+
+        for (uint256 index = 0; index < membersIDs.length; index++) {
+            if (members[membersIDs[index]].isActive) {
+                activeMemberCount++;
+            }
+        }
+
+        Member[] memory activeMembers = new Member[](activeMemberCount);
+        uint256 counter = 0;
+
+        for (uint256 index = 0; index < membersIDs.length; index++) {
+            if (members[membersIDs[index]].isActive) {
+                activeMembers[counter] = members[membersIDs[index]];
+                counter++;
+            }
+        }
+        return (categories, taskIndex, activeMembers);
+    }
+
+    function idIsProjectMember(
+        string calldata memberID
+    ) public view onlyRole(VIEWER_ROLE) returns (bool) {
+        return members[memberID].isActive;
     }
 
     // User management
     function grantRoles(
+        string calldata memberID,
         address user,
         bytes32[] calldata roles
     ) public onlyRole(OWNER_ROLE) {
+        members[memberID] = Member({memberAddress: user, isActive: true});
+        membersIDs.push(memberID);
+
         _grantRoles(roles, user);
     }
 
     function revokeRoles(
+        string calldata memberID,
         address user,
         bytes32[] calldata roles
     ) public onlyRole(OWNER_ROLE) {
+        members[memberID].isActive = false;
         _revokeRoles(roles, user);
     }
 

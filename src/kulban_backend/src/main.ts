@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { registerUser, loginUser, authenticate } from "./auth/index";
-
+import { getUserBoards } from "./dataManagement/index";
 const app = express();
 
 app.get("/", (req, res) => {
@@ -39,11 +39,14 @@ app.post("/login", async (req: Request, res) => {
   }
 });
 
-app.get("/protected", authenticate, (req: Request, res: Response) => {
-  res.json({ message: "Access granted" });
+app.get("/get-boards", authenticate, async (req: Request, res: Response) => {
+  // @ts-expect-error we sending this to the req
+  const userBoards = await getUserBoards(req.user.user);
+
+  res.json({ boards: userBoards });
 });
 
-const port = process.env.NODE_ENV === "dev" ? 3000 : 0;
+const port = process.env.NODE_ENV === "development" ? 3000 : 0;
 
 app.listen(port, () => {
   console.log("running on port:", port);
