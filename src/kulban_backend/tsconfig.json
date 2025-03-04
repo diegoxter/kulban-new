@@ -5,10 +5,11 @@
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "target": "ES2020",
+        "target": "ES2024",
         "module": "CommonJS",
         "outDir": "./dist",
         "rootDir": "./src",
+        "moduleResolution": "bundler",
         "allowJs": true,
         "noEmit": true,
         "experimentalDecorators": true

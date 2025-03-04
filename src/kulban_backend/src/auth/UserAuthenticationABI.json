@@ -1,1 +1,154 @@
-{"abi":[{"type":"function","name":"getUserAddress","inputs":[{"name":"_userID","type":"bytes32","internalType":"bytes32"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"type":"function","name":"loginUser","inputs":[{"name":"_userID","type":"bytes32","internalType":"bytes32"},{"name":"_passwordHash","type":"bytes32","internalType":"bytes32"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"type":"function","name":"registerUser","inputs":[{"name":"_userID","type":"bytes32","internalType":"bytes32"},{"name":"_passwordHash","type":"bytes32","internalType":"bytes32"},{"name":"_userAddress","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"updateUserAddress","inputs":[{"name":"_userID","type":"bytes32","internalType":"bytes32"},{"name":"_passwordHash","type":"bytes32","internalType":"bytes32"},{"name":"_newAddress","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"type":"event","name":"UserAddressUpdated","inputs":[{"name":"userID","type":"bytes32","indexed":false,"internalType":"bytes32"},{"name":"newAddress","type":"address","indexed":false,"internalType":"address"}],"anonymous":false},{"type":"event","name":"UserLoggedIn","inputs":[{"name":"userID","type":"bytes32","indexed":false,"internalType":"bytes32"},{"name":"userAddress","type":"address","indexed":false,"internalType":"address"}],"anonymous":false},{"type":"event","name":"UserRegistered","inputs":[{"name":"userID","type":"bytes32","indexed":false,"internalType":"bytes32"},{"name":"userAddress","type":"address","indexed":false,"internalType":"address"}],"anonymous":false}]}
+{"abi":[
+		{
+			"anonymous": false,
+			"inputs": [
+				{
+					"indexed": false,
+					"internalType": "bytes32",
+					"name": "userID",
+					"type": "bytes32"
+				},
+				{
+					"indexed": false,
+					"internalType": "address",
+					"name": "newAddress",
+					"type": "address"
+				}
+			],
+			"name": "UserAddressUpdated",
+			"type": "event"
+		},
+		{
+			"anonymous": false,
+			"inputs": [
+				{
+					"indexed": false,
+					"internalType": "bytes32",
+					"name": "userID",
+					"type": "bytes32"
+				},
+				{
+					"indexed": false,
+					"internalType": "address",
+					"name": "userAddress",
+					"type": "address"
+				}
+			],
+			"name": "UserLoggedIn",
+			"type": "event"
+		},
+		{
+			"anonymous": false,
+			"inputs": [
+				{
+					"indexed": false,
+					"internalType": "bytes32",
+					"name": "userID",
+					"type": "bytes32"
+				},
+				{
+					"indexed": false,
+					"internalType": "address",
+					"name": "userAddress",
+					"type": "address"
+				}
+			],
+			"name": "UserRegistered",
+			"type": "event"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "_userID",
+					"type": "bytes32"
+				}
+			],
+			"name": "getUserAddress",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "",
+					"type": "address"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "_userID",
+					"type": "bytes32"
+				},
+				{
+					"internalType": "bytes32",
+					"name": "_passwordHash",
+					"type": "bytes32"
+				}
+			],
+			"name": "loginUser",
+			"outputs": [
+				{
+					"internalType": "bool",
+					"name": "",
+					"type": "bool"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "_userID",
+					"type": "bytes32"
+				},
+				{
+					"internalType": "bytes32",
+					"name": "_passwordHash",
+					"type": "bytes32"
+				},
+				{
+					"internalType": "address",
+					"name": "_userAddress",
+					"type": "address"
+				}
+			],
+			"name": "registerUser",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "bytes32",
+					"name": "_userID",
+					"type": "bytes32"
+				},
+				{
+					"internalType": "bytes32",
+					"name": "_passwordHash",
+					"type": "bytes32"
+				},
+				{
+					"internalType": "address",
+					"name": "_newAddress",
+					"type": "address"
+				}
+			],
+			"name": "updateUserAddress",
+			"outputs": [
+				{
+					"internalType": "bool",
+					"name": "",
+					"type": "bool"
+				}
+			],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		}
+	]}

@@ -1,15 +1,15 @@
-// utils/jwtUtils.ts
-import jwt from "jsonwebtoken";
+import jwt from "jwt-simple";
 import { SECRET_KEY } from "../config";
 
 export function generateToken(userID: string): string {
-  return jwt.sign({ userID }, SECRET_KEY, { expiresIn: "1h" });
+  return jwt.encode({ user: userID }, SECRET_KEY);
 }
 
 export function verifyToken(token: string): string | null {
   try {
-    const decoded = jwt.verify(token, SECRET_KEY) as { userID: string };
-    return decoded.userID;
+    const decoded = jwt.decode(token, SECRET_KEY);
+
+    return decoded;
   } catch (error) {
     console.error(error);
     return null;

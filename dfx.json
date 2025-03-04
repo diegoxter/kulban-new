@@ -6,13 +6,13 @@
         "node_compatibility": true
       },
       "gzip": true,
-      "main": "src/kulban_backend/src/index.ts",
+      "main": "src/kulban_backend/src/main.ts",
       "type": "azle",
       "custom": {
         "experimental": true,
-        "candid_gen": "http"
+        "candid_gen": "http",
+        "env": ["BACKEND_SALT"]
       },
-      "wasm": ".azle/kulban_backend/kulban_backend.wasm",
       "tech_stack": {
         "cdk": {
            "azle": {}

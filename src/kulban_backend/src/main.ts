@@ -3,6 +3,10 @@ import { registerUser, loginUser, authenticate } from "./auth/index";
 
 const app = express();
 
+app.get("/", (req, res) => {
+  res.send("Hello world!");
+});
+
 app.use(express.json());
 
 app.post("/register", async (req: Request, res) => {
@@ -22,7 +26,6 @@ app.post("/register", async (req: Request, res) => {
 
 app.post("/login", async (req: Request, res) => {
   const { email, password } = req.body;
-
   try {
     const token = await loginUser(email, password);
 

@@ -1,4 +1,4 @@
-import { createActor, canisterId } from "declarations/kulban_backend";
+import { createActor, canisterId } from "../../../declarations/kulban_backend";
 import { building } from "$app/environment";
 
 function dummyActor() {
