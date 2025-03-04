@@ -1,15 +1,14 @@
 <script lang="ts">
 	import "../index.scss";
-	import { backend } from "$lib/canisters";
+	import { canisterURL } from "$lib/canisters";
 
 	let greeting = "";
 
-	function onSubmit(event) {
-		const name = event.target.name.value;
-		backend.greet(name).then((response) => {
-			greeting = response;
-		});
-		return false;
+	async function onSubmit() {
+		const response = await fetch(canisterURL);
+		const text = await response.text();
+
+		console.log(text);
 	}
 </script>
 
