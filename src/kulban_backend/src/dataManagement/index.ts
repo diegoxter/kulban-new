@@ -59,7 +59,7 @@ const boards: Board[] = [
     name: "Test board 3",
     activeTasksNumber: "1n",
     categories: ["cat 1", "cat 2", "cat 3"],
-    members: [],
+    members: [["usuario@example.com", true]],
   },
   {
     address: "91011",
@@ -110,6 +110,48 @@ export async function createBoards(
   try {
     for (const newBoard of newBoards) {
       boards.push(newBoard);
+    }
+
+    return true;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return error; // Return the error if it's an instance of Error
+    }
+    return new Error("An unknown error occurred");
+  }
+}
+
+export async function editTasks(
+  userID: string,
+  boardAddress: string,
+  tasksIDs: string[],
+  tasksData: Task[],
+): Promise<boolean | Error> {
+  try {
+    const board = boards.find(
+      (b) =>
+        b.address === boardAddress &&
+        b.members.some(
+          ([memberID, isActive]) => memberID === userID && isActive,
+        ),
+    );
+
+    for (const [i, taskID] of tasksIDs.entries()) {
+      const task = board?.tasks?.find((t) => t.id === taskID);
+
+      if (task) {
+        Object.assign(task, tasksData[i]);
+      } else {
+        if (!board?.tasks) {
+          board!.tasks = [];
+        }
+        const newTask: Task = {
+          ...tasksData[i],
+          id: taskID,
+        };
+
+        board?.tasks?.push(newTask);
+      }
     }
 
     return true;

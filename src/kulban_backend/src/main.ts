@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { registerUser, loginUser, authenticate } from "./auth/index";
 import {
   createBoards,
+  editTasks,
   getBoardInfo,
   getUserBoards,
 } from "./dataManagement/index";
@@ -78,5 +79,21 @@ app.post("/create-board", authenticate, async (req: Request, res: Response) => {
 
   return res.status(200).json({ message: "Board created successfully" });
 });
+
+app.patch(
+  "/modify-tasks",
+  authenticate,
+  async (req: Request, res: Response) => {
+    const { boardAddress, taskIDs, tasks } = req.body;
+
+    // @ts-expect-error we sending this to the req
+    const done = await editTasks(req.user.user, boardAddress, taskIDs, tasks);
+    if (!done || done instanceof Error) {
+      return res.status(404).json({ message: (done as Error).message });
+    }
+
+    return res.status(200).json({ message: "received!" });
+  },
+);
 
 app.listen(3000);
