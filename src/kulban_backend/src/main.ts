@@ -1,6 +1,10 @@
 import express, { Request, Response } from "express";
 import { registerUser, loginUser, authenticate } from "./auth/index";
-import { createBoards, getUserBoards } from "./dataManagement/index";
+import {
+  createBoards,
+  getBoardInfo,
+  getUserBoards,
+} from "./dataManagement/index";
 const app = express();
 
 app.get("/", (req, res) => {
@@ -47,6 +51,22 @@ app.get("/get-boards", authenticate, async (req: Request, res: Response) => {
 
   res.json({ boards: userBoards });
 });
+
+app.get(
+  "/get-board/:boardAddress",
+  authenticate,
+  async (req: Request, res: Response) => {
+    const { boardAddress } = req.params;
+    // @ts-expect-error we sending this to the req
+    const board = await getBoardInfo(boardAddress, req.user.user);
+
+    if (board instanceof Error) {
+      return res.status(404).json({ message: board.message });
+    }
+
+    return res.status(200).json(board);
+  },
+);
 
 app.post("/create-board", authenticate, async (req: Request, res: Response) => {
   const { newBoards } = req.body;

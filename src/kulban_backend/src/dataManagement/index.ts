@@ -1,8 +1,17 @@
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  state: number | string;
+}
+
 interface Board {
   address: string;
   name: string;
   categories: string[];
   activeTasksNumber: string;
+  tasks?: Task[];
   members: Array<[string, boolean]>;
 }
 
@@ -20,6 +29,29 @@ const boards: Board[] = [
     activeTasksNumber: "1n",
     categories: ["cat 1", "cat 2", "cat 3"],
     members: [["usuario@example.com", true]],
+    tasks: [
+      {
+        id: "1",
+        title: "Test task 1",
+        description: "Description 1",
+        category: "cat 1",
+        state: 0,
+      },
+      {
+        id: "2",
+        title: "Test task 2",
+        description: "Description 2",
+        category: "cat 2",
+        state: 2,
+      },
+      {
+        id: "3",
+        title: "Test task 3",
+        description: "Description 3",
+        category: "cat 3",
+        state: 1,
+      },
+    ],
   },
 
   {
@@ -37,6 +69,30 @@ const boards: Board[] = [
     members: [["usuario@example.com", false]],
   },
 ];
+
+export async function getBoardInfo(
+  boardAddress: string,
+  userID: string,
+): Promise<Board | Error> {
+  try {
+    const board = boards.find(
+      (b) =>
+        b.address === boardAddress &&
+        b.members.some(
+          ([memberID, isActive]) => memberID === userID && isActive,
+        ),
+    );
+
+    if (!board) throw new Error("Board not found.");
+
+    return board;
+  } catch (error) {
+    if (error instanceof Error) {
+      return error;
+    }
+    return new Error("An unknown error occurred");
+  }
+}
 
 export async function getUserBoards(userID: string) {
   const userBoards = boards.filter((board) => {
