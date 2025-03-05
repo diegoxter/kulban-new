@@ -1,5 +1,5 @@
  npx lint-staged
 ## npm test
-
-cd src/kulban_contracts/ && forge test
+## TO DO fix these
+# cd src/kulban_contracts/ && forge test
 

@@ -2,7 +2,14 @@ import jwt from "jwt-simple";
 import { SECRET_KEY } from "../config";
 
 export function generateToken(userID: string): string {
-  return jwt.encode({ user: userID }, SECRET_KEY);
+  return jwt.encode(
+    {
+      user: userID,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 60 * 60,
+    },
+    SECRET_KEY,
+  );
 }
 
 export function verifyToken(token: string): string | null {
@@ -10,8 +17,7 @@ export function verifyToken(token: string): string | null {
     const decoded = jwt.decode(token, SECRET_KEY);
 
     return decoded;
-  } catch (error) {
-    console.error(error);
+  } catch {
     return null;
   }
 }

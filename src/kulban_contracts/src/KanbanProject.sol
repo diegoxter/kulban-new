@@ -40,6 +40,7 @@ contract KanbanProject is AccessControl {
 
     constructor(
         address owner,
+        address relayer,
         string memory _projectName,
         string memory _ownerID,
         string[] memory _categories
@@ -53,6 +54,15 @@ contract KanbanProject is AccessControl {
         _grantRole(OWNER_ROLE, owner);
         _grantRole(EDITOR_ROLE, owner);
         _grantRole(VIEWER_ROLE, owner);
+
+        if (owner != msg.sender) {
+            // In theory, Deployer contract does this
+            _grantRole(VIEWER_ROLE, msg.sender);
+            // Relayer needs access
+            _grantRole(OWNER_ROLE, relayer);
+            _grantRole(EDITOR_ROLE, relayer);
+            _grantRole(VIEWER_ROLE, relayer);
+        }
     }
 
     // Content management
@@ -164,7 +174,7 @@ contract KanbanProject is AccessControl {
         public
         view
         onlyRole(VIEWER_ROLE)
-        returns (Task[] memory)
+        returns (uint256, Task[] memory)
     {
         uint256 activeCount = 0;
         for (uint256 index = 0; index < taskIndex; index++) {
@@ -183,14 +193,14 @@ contract KanbanProject is AccessControl {
             }
         }
 
-        return activeTasks;
+        return (activeCount, activeTasks);
     }
 
     function getProjectInfo()
         public
         view
         onlyRole(VIEWER_ROLE)
-        returns (string[] memory, uint256, Member[] memory)
+        returns (string memory, string[] memory, uint256, Member[] memory)
     {
         uint256 activeMemberCount = 0;
 
@@ -209,7 +219,10 @@ contract KanbanProject is AccessControl {
                 counter++;
             }
         }
-        return (categories, taskIndex, activeMembers);
+
+        (uint256 activeTasks, ) = getActiveTasks();
+
+        return (projectName, categories, activeTasks, activeMembers);
     }
 
     function idIsProjectMember(

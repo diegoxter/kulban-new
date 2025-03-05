@@ -16,7 +16,6 @@ contract Deployer is Ownable {
     }
 
     mapping(uint256 => address) private projectsAddressPerIndex;
-    mapping(address => ProjectInfo[]) private projectsPerOwnerAddress;
 
     constructor() Ownable(msg.sender) {}
 
@@ -38,36 +37,16 @@ contract Deployer is Ownable {
 
         KanbanProject newInstance = new KanbanProject(
             msg.sender,
+            address(this),
             _projectName,
             _ownerID,
             categories
         );
 
-        ProjectInfo memory newProject = ProjectInfo({
-            owner: msg.sender,
-            projectAddress: address(newInstance),
-            ownerID: _ownerID,
-            projectName: _projectName
-        });
-
-        if (msg.sender == owner()) {
-            projectsPerOwnerID[_ownerID].push(newProject);
-        } else {
-            projectsPerOwnerAddress[msg.sender].push(newProject);
-        }
-
         projectsAddressPerIndex[projectIndex] = address(newInstance);
         projectIndex++;
 
         return address(newInstance);
-    }
-
-    function getProjectsPerAddress()
-        public
-        view
-        returns (ProjectInfo[] memory)
-    {
-        return projectsPerOwnerAddress[msg.sender];
     }
 
     function getProjectsWhereIDIsViewer(

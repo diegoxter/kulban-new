@@ -13,14 +13,14 @@ export const RPC_URL =
     : process.env.RPC_URL;
 export const PRIVATE_KEY =
   process.env.NODE_ENV == "development"
-    ? "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    ? "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
     : process.env.PRIVATE_KEY;
 
 export const AUTH_CONTRACT_ADDRESS: string =
   process.env.NODE_ENV == "development"
-    ? "0x712516e61C8B383dF4A63CFe83d7701Bce54B03e"
+    ? "0x8464135c8F25Da09e49BC8782676a84730C318bC"
     : process.env.AUTH_CONTRACT_ADDRESS!;
 export const DEPLOYER_CONTRACT_ADDRESS: string =
   process.env.NODE_ENV == "development"
-    ? "0x71C95911E9a5D330f4D621842EC243EE1343292e"
+    ? "0x59F2f1fCfE2474fD5F0b9BA1E73ca90b143Eb8d0"
     : process.env.DEPLOYER_CONTRACT_ADDRESS!;

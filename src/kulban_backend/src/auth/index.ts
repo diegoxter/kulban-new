@@ -28,11 +28,13 @@ export async function registerUser(username: string, password: string) {
 
     const receipt: TransactionReceipt = await tx.wait();
     console.log(receipt.status);
-    const jwToken = generateToken(userID(username + salt(username)));
+    const jwToken = generateToken(username);
 
     return jwToken;
   } catch (error) {
-    throw new Error(`Couldnt register: ${error}`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const err = error as any;
+    throw new Error(`${err.reason ?? err.message}`);
   }
 }
 
@@ -47,20 +49,32 @@ export async function loginUser(username: string, password: string) {
 
     if (!validUser) throw new Error("Invalid Credentials");
 
-    const jwToken = generateToken(userID(username + salt(username)));
+    const jwToken = generateToken(username);
 
     return jwToken;
   } catch (error) {
-    throw new Error(`Couldnt login: ${error}`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const err = error as any;
+    throw new Error(`${err.message ?? err.reason}`);
   }
 }
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
   const token = req.headers["authorization"];
-  if (!token) return res.sendStatus(401);
+  if (!token)
+    return res.status(401).json({
+      status: "error",
+      message: "Access denied",
+      details: "No authorization",
+    });
 
   const userID = verifyToken(token.split(" ")[1]);
-  if (!userID) return res.sendStatus(403);
+  if (!userID)
+    return res.status(403).json({
+      status: "error",
+      message: "Access denied",
+      details: "Invalid or expired token",
+    });
 
   // @ts-expect-error we sending this to the req
   req.user = userID;

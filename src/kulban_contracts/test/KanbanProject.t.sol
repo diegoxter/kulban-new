@@ -43,18 +43,18 @@ contract KanbanProjectTest is Test {
 
     function test_AddsCategories() public {
         project.addCategory("Sixth");
-        (string[] memory _prevCategories, ) = project.getProjectInfo();
+        (string[] memory _prevCategories, , , ) = project.getProjectInfo();
         assertEq(_prevCategories[_prevCategories.length - 1], "Sixth");
 
         project.addCategory("Seventh");
-        (string[] memory _nextCategories, ) = project.getProjectInfo();
+        (string[] memory _nextCategories, , , ) = project.getProjectInfo();
 
         assertEq(_nextCategories[_nextCategories.length - 1], "Seventh");
     }
 
     function testFuzz_AddCategory(string memory category) public {
         project.addCategory(category);
-        (string[] memory _prevCategories, ) = project.getProjectInfo();
+        (string[] memory _prevCategories, , , ) = project.getProjectInfo();
         assertEq(_prevCategories[_prevCategories.length - 1], category);
     }
 
@@ -126,15 +126,15 @@ contract KanbanProjectTest is Test {
     }
 
     function test_DeleteTasks() public {
-      project.deleteTask(1);
-      KanbanProject.Task[] memory activeTasks = project.getActiveTasks();
+        project.deleteTask(1);
+        KanbanProject.Task[] memory activeTasks = project.getActiveTasks();
 
-      assertEq(activeTasks.length, 2);
+        assertEq(activeTasks.length, 2);
 
-      project.deleteTask(2);
-      KanbanProject.Task[] memory newActiveTasks = project.getActiveTasks();
+        project.deleteTask(2);
+        KanbanProject.Task[] memory newActiveTasks = project.getActiveTasks();
 
-      assertEq(newActiveTasks.length, 1);
+        assertEq(newActiveTasks.length, 1);
     }
 
     function setBatchAddAndEditTasks() public {
