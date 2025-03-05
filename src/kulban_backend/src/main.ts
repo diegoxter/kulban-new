@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { registerUser, loginUser, authenticate } from "./auth/index";
-import { getUserBoards } from "./dataManagement/index";
+import { createBoards, getUserBoards } from "./dataManagement/index";
 const app = express();
 
 app.get("/", (req, res) => {
@@ -40,11 +40,23 @@ app.post("/login", async (req: Request, res) => {
   }
 });
 
+// These need authentication
 app.get("/get-boards", authenticate, async (req: Request, res: Response) => {
   // @ts-expect-error we sending this to the req
   const userBoards = await getUserBoards(req.user.user);
 
   res.json({ boards: userBoards });
+});
+
+app.post("/create-board", authenticate, async (req: Request, res: Response) => {
+  const { newBoards } = req.body;
+  const boardCreated = await createBoards(newBoards);
+
+  if (boardCreated instanceof Error) {
+    return res.status(500).json({ message: boardCreated.message });
+  }
+
+  return res.status(200).json({ message: "Board created successfully" });
 });
 
 app.listen(3000);
