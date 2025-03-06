@@ -1,3 +1,4 @@
+import { AddressInfo } from "net";
 import express, { Request, Response } from "express";
 import { registerUser, loginUser, authenticate } from "./auth/index";
 import {
@@ -6,7 +7,6 @@ import {
   getBoardInfo,
   getUserBoards,
 } from "./dataManagement/index";
-
 const app = express();
 
 app.get("/", (req, res) => {
@@ -106,4 +106,12 @@ app.patch(
   },
 );
 
-app.listen(3000);
+const port = process.env.NODE_ENV === "development" ? 3000 : 0;
+
+const server = app.listen(port, () => {
+  const serverAddress = server.address() as AddressInfo;
+  console.log(
+    "Running on port:",
+    `http://${serverAddress.address === "::" ? "127.0.0.1" : serverAddress.address}:${serverAddress.port}`,
+  );
+});
