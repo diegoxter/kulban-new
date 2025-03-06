@@ -1,3 +1,4 @@
+import type { Board, Task } from "./global";
 import { AddressInfo } from "net";
 import express, { Request, Response } from "express";
 import { registerUser, loginUser, authenticate } from "./auth/index";
@@ -19,15 +20,13 @@ app.use(express.json());
 app.post("/register", async (req: Request, res) => {
   const { email, password }: { email: string; password: string } = req.body;
   try {
-    const token = await registerUser(email, password);
+    const token: string = await registerUser(email, password);
 
     res.json({ token });
   } catch (error) {
-    res
-      // eslint-disable-next-line
-      .status((error as any).status ?? 500)
-      // eslint-disable-next-line
-      .send({ error: (error as any).message });
+    const err = error as { status?: number; message: string };
+
+    res.status(err.status ?? 500).send({ error: err.message });
   }
 });
 
@@ -35,24 +34,28 @@ app.post("/login", async (req: Request, res) => {
   const { email, password }: { email: string; password: string } = req.body;
 
   try {
-    const token = await loginUser(email, password);
+    const token: string = await loginUser(email, password);
 
     res.json({ token });
   } catch (error) {
-    res
-      // eslint-disable-next-line
-      .status((error as any).status ?? 500)
-      // eslint-disable-next-line
-      .send({ error: (error as any).message });
+    const err = error as { status?: number; message: string };
+
+    res.status(err.status ?? 401).send({ error: err.message });
   }
 });
 
 // These need authentication
 app.get("/get-boards", authenticate, async (req: Request, res: Response) => {
-  // @ts-expect-error we sending this to the req
-  const userBoards: Board[] = await getUserBoards(req.user.user);
+  try {
+    // @ts-expect-error we sending this to the req
+    const userBoards: Board[] = await getUserBoards(req.user.user);
 
-  res.json({ boards: userBoards });
+    res.json({ boards: userBoards });
+  } catch (error) {
+    const err = error as { status?: number; message: string };
+
+    res.status(err.status ?? 401).send({ error: err.message });
+  }
 });
 
 app.get(
@@ -60,26 +63,32 @@ app.get(
   authenticate,
   async (req: Request, res: Response) => {
     const { boardAddress } = req.params;
-    // @ts-expect-error we sending this to the req
-    const board = await getBoardInfo(boardAddress, req.user.user);
 
-    if (board instanceof Error) {
-      return res.status(404).json({ message: board.message });
+    try {
+      // @ts-expect-error we sending this to the req
+      const board: Board = await getBoardInfo(boardAddress, req.user.user);
+
+      res.status(200).json(board);
+    } catch (error) {
+      const err = error as { status?: number; message: string };
+
+      res.status(err.status ?? 401).send({ error: err.message });
     }
-
-    return res.status(200).json(board);
   },
 );
 
 app.post("/create-board", authenticate, async (req: Request, res: Response) => {
   const { newBoard }: { newBoard: Board } = req.body;
-  const boardCreated = await createBoard(newBoard);
 
-  if (boardCreated instanceof Error) {
-    return res.status(500).json({ message: boardCreated.message });
+  try {
+    await createBoard(newBoard);
+
+    res.status(200).json({ message: "Board created successfully" });
+  } catch (error) {
+    const err = error as { status?: number; message: string };
+
+    res.status(err.status ?? 403).send({ error: err.message });
   }
-
-  return res.status(200).json({ message: "Board created successfully" });
 });
 
 app.post(
@@ -91,18 +100,18 @@ app.post(
       newCategory,
     }: { boardAddress: string; newCategory: string } = req.body;
 
-    const categoryCreated = await createCategory(
-      // @ts-expect-error we sending this to the req
-      req.user.user,
-      boardAddress,
-      newCategory,
-    );
-
-    if (categoryCreated instanceof Error) {
-      return res.status(500).json({ message: categoryCreated.message });
+    try {
+      await createCategory(
+        // @ts-expect-error we sending this to the req
+        req.user.user,
+        boardAddress,
+        newCategory,
+      );
+      return res.status(200).json({ message: "Category created successfully" });
+    } catch (error) {
+      const err = error as { status?: number; message: string };
+      res.status(err.status ?? 500).send({ error: err.message });
     }
-
-    return res.status(200).json({ message: "Board created successfully" });
   },
 );
 
@@ -116,18 +125,19 @@ app.patch(
       tasks,
     }: { boardAddress: string; taskIDs: string[]; tasks: Task[] } = req.body;
 
-    const done: boolean | Error = await editTasks(
-      // @ts-expect-error we sending this to the req
-      req.user.user,
-      boardAddress,
-      taskIDs,
-      tasks,
-    );
-    if (!done || done instanceof Error) {
-      return res.status(404).json({ message: (done as Error).message });
+    try {
+      await editTasks(
+        // @ts-expect-error we sending this to the req
+        req.user.user,
+        boardAddress,
+        taskIDs,
+        tasks,
+      );
+      res.status(200);
+    } catch (error) {
+      const err = error as { status?: number; message: string };
+      res.status(err.status ?? 500).send({ error: err.message });
     }
-
-    return res.status(200).json({ message: "received!" });
   },
 );
 

@@ -13,5 +13,6 @@
         "allowJs": true,
         "noEmit": true,
         "experimentalDecorators": true
-    }
+    },
+    "include": ["src/**/*.ts","src/**/*.d.ts"]
 }

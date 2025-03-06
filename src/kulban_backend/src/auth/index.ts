@@ -26,7 +26,10 @@ interface User {
 
 const users: User[] = [];
 
-export async function registerUser(username: string, password: string) {
+export async function registerUser(
+  username: string,
+  password: string,
+): Promise<string> {
   try {
     users.push({
       username: username,
@@ -41,7 +44,10 @@ export async function registerUser(username: string, password: string) {
   }
 }
 
-export async function loginUser(username: string, password: string) {
+export async function loginUser(
+  username: string,
+  password: string,
+): Promise<string> {
   try {
     const userIndex = users.findIndex(
       (user) =>

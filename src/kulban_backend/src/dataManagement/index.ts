@@ -1,3 +1,4 @@
+import type { Board, Task } from "../global";
 const boards: Board[] = [
   {
     address: "123",
@@ -68,15 +69,8 @@ const returnBoardOrError = (boardAddress: string, userID: string): Board => {
 export async function getBoardInfo(
   boardAddress: string,
   userID: string,
-): Promise<Board | Error> {
-  try {
-    return returnBoardOrError(boardAddress, userID);
-  } catch (error) {
-    if (error instanceof Error) {
-      return error;
-    }
-    return new Error("An unknown error occurred");
-  }
+): Promise<Board> {
+  return returnBoardOrError(boardAddress, userID);
 }
 
 export async function getUserBoards(userID: string): Promise<Board[]> {
@@ -90,37 +84,31 @@ export async function getUserBoards(userID: string): Promise<Board[]> {
 }
 
 export async function createBoard(newBoard: Board): Promise<boolean | Error> {
-  try {
-    boards.push(newBoard);
+  boards.push(newBoard);
 
-    return true;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return error; // Return the error if it's an instance of Error
-    }
-    return new Error("An unknown error occurred");
-  }
+  return true;
 }
 
 export async function createCategory(
   userID: string,
   boardAddress: string,
   newCategory: string,
-): Promise<boolean | Error> {
-  try {
-    const board = returnBoardOrError(boardAddress, userID);
-    const categoryAlreadyExists: boolean =
-      board.categories.indexOf(newCategory) !== -1;
+): Promise<boolean> {
+  const boardIndex = boards.findIndex(
+    (b) =>
+      b.address === boardAddress &&
+      b.members.some(([memberID, isActive]) => memberID === userID && isActive),
+  );
 
-    if (categoryAlreadyExists) throw new Error("Category already exists.");
+  if (boardIndex === -1) throw new Error("Board not found.");
+  const categoryAlreadyExists: boolean =
+    boards[boardIndex].categories.includes(newCategory);
 
-    return true;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return error; // Return the error if it's an instance of Error
-    }
-    return new Error("An unknown error occurred");
-  }
+  if (categoryAlreadyExists) throw new Error("Category already exists.");
+
+  boards[boardIndex].categories.push(newCategory);
+
+  return true;
 }
 //
 //export async function createTasks(
