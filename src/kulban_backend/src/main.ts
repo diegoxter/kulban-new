@@ -145,7 +145,8 @@ app.patch(
       boardAddress,
       taskIDs,
       tasks,
-    }: { boardAddress: string; taskIDs: string[]; tasks: Task[] } = req.body;
+    }: { boardAddress: string; taskIDs: string[]; tasks: Omit<Task[], "id"> } =
+      req.body;
 
     try {
       await editTasks(
@@ -155,7 +156,7 @@ app.patch(
         taskIDs,
         tasks,
       );
-      res.status(200);
+      res.status(200).json({ message: "Tasks modificated successfully" });
     } catch (error) {
       const err = error as { status?: number; message: string };
       res.status(err.status ?? 500).send({ error: err.message });

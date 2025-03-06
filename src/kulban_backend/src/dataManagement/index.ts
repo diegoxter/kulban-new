@@ -177,25 +177,18 @@ export async function editTasks(
   tasksIDs: string[],
   tasksData: Task[],
 ): Promise<boolean | Error> {
-  try {
-    const boardIndex = returnBoardIndexOrError(boardAddress, userID);
-    const board = boards[boardIndex];
+  const boardIndex = returnBoardIndexOrError(boardAddress, userID);
+  const board = boards[boardIndex];
 
-    for (const [i, taskID] of tasksIDs.entries()) {
-      const task = board.tasks!.find((t) => t.id === taskID);
+  for (const [i, taskID] of tasksIDs.entries()) {
+    const task = board.tasks!.find((t) => t.id === taskID);
 
-      if (task) {
-        Object.assign(task, tasksData[i]);
-      }
+    if (task) {
+      Object.assign(task, tasksData[i]);
     }
-
-    return true;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      return error; // Return the error if it's an instance of Error
-    }
-    return new Error("An unknown error occurred");
   }
+
+  return true;
 }
 
 // TO DO removeTask (mark it as isActive: false)
