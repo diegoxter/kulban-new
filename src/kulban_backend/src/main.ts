@@ -1,4 +1,4 @@
-import type { Board, Task } from "./global";
+import type { Board, Task, EditCategoryParameters } from "./global";
 import { AddressInfo } from "net";
 import express, { Request, Response } from "express";
 import { registerUser, loginUser, authenticate } from "./auth/index";
@@ -6,6 +6,7 @@ import {
   createBoard,
   createCategory,
   createTasks,
+  editCategory,
   editTasks,
   getBoardInfo,
   getUserBoards,
@@ -138,6 +139,32 @@ app.post("/create-tasks", authenticate, async (req: Request, res: Response) => {
 });
 
 app.patch(
+  "/edit-category",
+  authenticate,
+  async (req: Request, res: Response) => {
+    const {
+      boardAddress,
+      categoryData,
+    }: { boardAddress: string; categoryData: EditCategoryParameters } =
+      req.body;
+
+    try {
+      await editCategory(
+        // @ts-expect-error we sending this to the req
+        req.user.user,
+        boardAddress,
+        categoryData,
+      );
+
+      res.status(200).json({ message: "Category modified successfully" });
+    } catch (error) {
+      const err = error as { status?: number; message: string };
+      res.status(err.status ?? 500).send({ error: err.message });
+    }
+  },
+);
+
+app.patch(
   "/modify-tasks",
   authenticate,
   async (req: Request, res: Response) => {
@@ -156,7 +183,7 @@ app.patch(
         taskIDs,
         tasks,
       );
-      res.status(200).json({ message: "Tasks modificated successfully" });
+      res.status(200).json({ message: "Tasks modified successfully" });
     } catch (error) {
       const err = error as { status?: number; message: string };
       res.status(err.status ?? 500).send({ error: err.message });

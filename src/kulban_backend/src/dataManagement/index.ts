@@ -1,4 +1,4 @@
-import type { Board, Task } from "../global";
+import type { Board, Task, EditCategoryParameters } from "../global";
 const boards: Board[] = [
   {
     address: "123",
@@ -147,29 +147,25 @@ export async function createTasks(
 
   return true;
 }
-//
-//export async function editCategory(
-//  userID: string,
-//  boardAddress: string,
-//  newCategory: string,
-//): Promise<boolean | Error> {
-//  try {
-//    const board = returnBoardOrError(boardAddress, userID);
-//
-//    const categoryIndex: number = board.categories.indexOf(newCategory);
-//
-//    if (categoryIndex === -1) throw new Error("Category doesn't exists.");
-//
-//    board.categories[categoryIndex] = newCategory;
-//
-//    return true;
-//  } catch (error: unknown) {
-//    if (error instanceof Error) {
-//      return error; // Return the error if it's an instance of Error
-//    }
-//    return new Error("An unknown error occurred");
-//  }
-//}
+
+export async function editCategory(
+  userID: string,
+  boardAddress: string,
+  categoryData: EditCategoryParameters,
+): Promise<boolean | Error> {
+  const boardIndex = returnBoardIndexOrError(boardAddress, userID);
+  const board = boards[boardIndex];
+
+  const categoryIndex: number = board.categories.indexOf(
+    categoryData.oldCategory,
+  );
+
+  if (categoryIndex === -1) throw new Error("Category not found.");
+
+  board.categories[categoryIndex] = categoryData.newCategory;
+
+  return true;
+}
 
 export async function editTasks(
   userID: string,

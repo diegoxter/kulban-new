@@ -14,3 +14,8 @@ export interface Board {
   tasks?: Task[];
   members: Array<[string, boolean]>;
 }
+
+export interface EditCategoryParameters {
+  oldCategory: string;
+  newCategory: string;
+}
