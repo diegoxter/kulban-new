@@ -66,6 +66,21 @@ const returnBoardOrError = (boardAddress: string, userID: string): Board => {
   return board;
 };
 
+const returnBoardIndexOrError = (
+  boardAddress: string,
+  userID: string,
+): number => {
+  const boardIndex = boards.findIndex(
+    (b) =>
+      b.address === boardAddress &&
+      b.members.some(([memberID, isActive]) => memberID === userID && isActive),
+  );
+
+  if (boardIndex === -1) throw new Error("Board not found.");
+
+  return boardIndex;
+};
+
 export async function getBoardInfo(
   boardAddress: string,
   userID: string,
@@ -94,13 +109,8 @@ export async function createCategory(
   boardAddress: string,
   newCategory: string,
 ): Promise<boolean> {
-  const boardIndex = boards.findIndex(
-    (b) =>
-      b.address === boardAddress &&
-      b.members.some(([memberID, isActive]) => memberID === userID && isActive),
-  );
+  const boardIndex = returnBoardIndexOrError(boardAddress, userID);
 
-  if (boardIndex === -1) throw new Error("Board not found.");
   const categoryAlreadyExists: boolean =
     boards[boardIndex].categories.includes(newCategory);
 
@@ -110,41 +120,33 @@ export async function createCategory(
 
   return true;
 }
-//
-//export async function createTasks(
-//  userID: string,
-//  boardAddress: string,
-//  tasksData: Omit<Task, "id">[],
-//): Promise<boolean | Error> {
-//  try {
-//    const board = returnBoardOrError(boardAddress, userID);
-//
-//    if (!board.tasks) {
-//      board!.tasks = [];
-//    }
-//
-//    const lastTask = board.tasks[board.tasks.length - 1];
-//    let lastId = lastTask ? parseInt(lastTask.id, 10) : 0;
-//
-//    for (const taskData of tasksData) {
-//      lastId++;
-//
-//      const newTask: Task = {
-//        ...taskData,
-//        id: lastId.toString(),
-//      };
-//
-//      board.tasks.push(newTask);
-//    }
-//
-//    return true;
-//  } catch (error: unknown) {
-//    if (error instanceof Error) {
-//      return error; // Return the error if it's an instance of Error
-//    }
-//    return new Error("An unknown error occurred");
-//  }
-//}
+
+export async function createTasks(
+  userID: string,
+  boardAddress: string,
+  tasksData: Omit<Task, "id">[],
+): Promise<boolean> {
+  const boardIndex = returnBoardIndexOrError(boardAddress, userID);
+  const board = boards[boardIndex];
+
+  if (!board.tasks) {
+    board.tasks = [];
+  }
+
+  const lastTask = board.tasks[board.tasks.length - 1];
+  let lastId = lastTask ? parseInt(lastTask.id, 10) : 0;
+
+  for (const taskData of tasksData) {
+    lastId++;
+    const newTask: Task = {
+      ...taskData,
+      id: lastId.toString(),
+    };
+    board.tasks.push(newTask);
+  }
+
+  return true;
+}
 //
 //export async function editCategory(
 //  userID: string,
@@ -176,7 +178,8 @@ export async function editTasks(
   tasksData: Task[],
 ): Promise<boolean | Error> {
   try {
-    const board = returnBoardOrError(boardAddress, userID);
+    const boardIndex = returnBoardIndexOrError(boardAddress, userID);
+    const board = boards[boardIndex];
 
     for (const [i, taskID] of tasksIDs.entries()) {
       const task = board.tasks!.find((t) => t.id === taskID);

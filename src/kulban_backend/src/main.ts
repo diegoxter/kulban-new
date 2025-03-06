@@ -5,6 +5,7 @@ import { registerUser, loginUser, authenticate } from "./auth/index";
 import {
   createBoard,
   createCategory,
+  createTasks,
   editTasks,
   getBoardInfo,
   getUserBoards,
@@ -114,6 +115,27 @@ app.post(
     }
   },
 );
+
+app.post("/create-tasks", authenticate, async (req: Request, res: Response) => {
+  const {
+    boardAddress,
+    newTasks,
+  }: { boardAddress: string; newTasks: Omit<Task[], "id"> } = req.body;
+
+  try {
+    await createTasks(
+      // @ts-expect-error we sending this to the req
+      req.user.user,
+      boardAddress,
+      newTasks,
+    );
+
+    res.status(200).json({ message: "Task created successfully" });
+  } catch (error) {
+    const err = error as { status?: number; message: string };
+    res.status(err.status ?? 500).send({ error: err.message });
+  }
+});
 
 app.patch(
   "/modify-tasks",
