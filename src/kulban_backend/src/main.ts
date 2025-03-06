@@ -1,11 +1,12 @@
 import express, { Request, Response } from "express";
 import { registerUser, loginUser, authenticate } from "./auth/index";
 import {
-  createBoards,
+  createBoard,
   editTasks,
   getBoardInfo,
   getUserBoards,
 } from "./dataManagement/index";
+
 const app = express();
 
 app.get("/", (req, res) => {
@@ -15,7 +16,7 @@ app.get("/", (req, res) => {
 app.use(express.json());
 
 app.post("/register", async (req: Request, res) => {
-  const { email, password } = req.body;
+  const { email, password }: { email: string; password: string } = req.body;
   try {
     const token = await registerUser(email, password);
 
@@ -30,7 +31,7 @@ app.post("/register", async (req: Request, res) => {
 });
 
 app.post("/login", async (req: Request, res) => {
-  const { email, password } = req.body;
+  const { email, password }: { email: string; password: string } = req.body;
 
   try {
     const token = await loginUser(email, password);
@@ -48,7 +49,7 @@ app.post("/login", async (req: Request, res) => {
 // These need authentication
 app.get("/get-boards", authenticate, async (req: Request, res: Response) => {
   // @ts-expect-error we sending this to the req
-  const userBoards = await getUserBoards(req.user.user);
+  const userBoards: Board[] = await getUserBoards(req.user.user);
 
   res.json({ boards: userBoards });
 });
@@ -70,8 +71,8 @@ app.get(
 );
 
 app.post("/create-board", authenticate, async (req: Request, res: Response) => {
-  const { newBoards } = req.body;
-  const boardCreated = await createBoards(newBoards);
+  const { newBoard }: { newBoard: Board } = req.body;
+  const boardCreated = await createBoard(newBoard);
 
   if (boardCreated instanceof Error) {
     return res.status(500).json({ message: boardCreated.message });
@@ -84,10 +85,19 @@ app.patch(
   "/modify-tasks",
   authenticate,
   async (req: Request, res: Response) => {
-    const { boardAddress, taskIDs, tasks } = req.body;
+    const {
+      boardAddress,
+      taskIDs,
+      tasks,
+    }: { boardAddress: string; taskIDs: string[]; tasks: Task[] } = req.body;
 
-    // @ts-expect-error we sending this to the req
-    const done = await editTasks(req.user.user, boardAddress, taskIDs, tasks);
+    const done: boolean | Error = await editTasks(
+      // @ts-expect-error we sending this to the req
+      req.user.user,
+      boardAddress,
+      taskIDs,
+      tasks,
+    );
     if (!done || done instanceof Error) {
       return res.status(404).json({ message: (done as Error).message });
     }

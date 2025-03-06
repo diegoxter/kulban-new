@@ -1,20 +1,3 @@
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  state: number | string;
-}
-
-interface Board {
-  address: string;
-  name: string;
-  categories: string[];
-  activeTasksNumber: string;
-  tasks?: Task[];
-  members: Array<[string, boolean]>;
-}
-
 const boards: Board[] = [
   {
     address: "123",
@@ -94,7 +77,7 @@ export async function getBoardInfo(
   }
 }
 
-export async function getUserBoards(userID: string) {
+export async function getUserBoards(userID: string): Promise<Board[]> {
   const userBoards = boards.filter((board) => {
     return board.members.some(
       ([memberID, isActive]) => memberID === userID && isActive,
@@ -104,13 +87,9 @@ export async function getUserBoards(userID: string) {
   return userBoards;
 }
 
-export async function createBoards(
-  newBoards: Board[],
-): Promise<boolean | Error> {
+export async function createBoard(newBoard: Board): Promise<boolean | Error> {
   try {
-    for (const newBoard of newBoards) {
-      boards.push(newBoard);
-    }
+    boards.push(newBoard);
 
     return true;
   } catch (error: unknown) {
