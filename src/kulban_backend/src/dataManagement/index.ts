@@ -189,25 +189,18 @@ export async function editTasks(
 
 // TO DO removeTask (mark it as isActive: false)
 
-//export async function removeCategory(
-//  userID: string,
-//  boardAddress: string,
-//  category: string,
-//): Promise<Boolean | Error> {
-//  try {
-//    const board = returnBoardOrError(boardAddress, userID);
-//
-//    const index = board.categories.indexOf(category);
-//
-//    if (index !== -1) {
-//      board.categories.splice(index, 1);
-//    }
-//
-//    return true;
-//  } catch (error) {
-//    if (error instanceof Error) {
-//      return error;
-//    }
-//    return new Error("An unknown error occurred");
-//  }
-//}
+export async function removeCategory(
+  userID: string,
+  boardAddress: string,
+  category: string,
+): Promise<boolean | Error> {
+  const boardIndex = returnBoardIndexOrError(boardAddress, userID);
+  const board = boards[boardIndex];
+  const index = board.categories.indexOf(category);
+
+  if (index === -1) throw new Error("Category not found.");
+
+  board.categories.splice(index, 1);
+
+  return true;
+}

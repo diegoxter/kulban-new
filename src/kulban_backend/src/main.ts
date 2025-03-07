@@ -10,6 +10,7 @@ import {
   editTasks,
   getBoardInfo,
   getUserBoards,
+  removeCategory,
 } from "./dataManagement/index";
 const app = express();
 
@@ -137,6 +138,30 @@ app.post("/create-tasks", authenticate, async (req: Request, res: Response) => {
     res.status(err.status ?? 500).send({ error: err.message });
   }
 });
+
+app.delete(
+  "/delete-category",
+  authenticate,
+  async (req: Request, res: Response) => {
+    const {
+      boardAddress,
+      category,
+    }: { boardAddress: string; category: string } = req.body;
+
+    try {
+      await removeCategory(
+        // @ts-expect-error we sending this to the req
+        req.user.user,
+        boardAddress,
+        category,
+      );
+      res.status(200).json({ message: "Category deleted successfully" });
+    } catch (error) {
+      const err = error as { status?: number; message: string };
+      res.status(err.status ?? 500).send({ error: err.message });
+    }
+  },
+);
 
 app.patch(
   "/edit-category",
