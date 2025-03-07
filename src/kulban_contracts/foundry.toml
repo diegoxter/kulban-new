@@ -1,9 +1,11 @@
 [profile.default]
 src = "src"
 out = "out"
+via_ir = true
 
 remappings = [
   'forge-std/=lib/forge-std/src/',
+  '@openzeppelin-contracts-5.0.2/=lib/openzeppelin-contracts/contracts/'
 ]
 
 

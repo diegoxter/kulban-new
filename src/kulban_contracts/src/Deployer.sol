@@ -20,6 +20,8 @@ contract Deployer is Ownable {
     constructor() Ownable(msg.sender) {}
 
     function deployNew(
+        address _owner,
+        address _relayer,
         string calldata _projectName,
         string memory _ownerID,
         string[] calldata _initialCategories
@@ -35,9 +37,12 @@ contract Deployer is Ownable {
             ? _initialCategories
             : new string[](5);
 
+        // In case a user deploys with the relayer
+        address owner = _owner == msg.sender ? _owner : msg.sender;
+
         KanbanProject newInstance = new KanbanProject(
-            msg.sender,
-            address(this),
+            owner,
+            _relayer,
             _projectName,
             _ownerID,
             categories
