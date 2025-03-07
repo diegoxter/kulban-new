@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
-import {Test, console} from "forge-std/Test.sol";
+import "forge-std/Test.sol";
 import {KanbanProject} from "../src/Deployer.sol";
 
 contract KanbanProjectTest is Test {
@@ -9,7 +9,8 @@ contract KanbanProjectTest is Test {
     address user1 = address(0xD1);
     address user2 = address(0xD2);
     address user3 = address(0xD3);
-
+    address relayer = address(0xD4);
+    
     function beforeTestSetup(
         bytes4 testSelector
     ) public pure returns (bytes[] memory beforeTestCalldata) {
@@ -35,6 +36,7 @@ contract KanbanProjectTest is Test {
 
         project = new KanbanProject(
             address(this),
+            relayer,
             "Test project",
             "ABC",
             categories
@@ -43,18 +45,18 @@ contract KanbanProjectTest is Test {
 
     function test_AddsCategories() public {
         project.addCategory("Sixth");
-        (string[] memory _prevCategories, , , ) = project.getProjectInfo();
+        (, string[] memory _prevCategories, ,  ) = project.getProjectInfo();
         assertEq(_prevCategories[_prevCategories.length - 1], "Sixth");
 
         project.addCategory("Seventh");
-        (string[] memory _nextCategories, , , ) = project.getProjectInfo();
+        (, string[] memory _nextCategories, ,  ) = project.getProjectInfo();
 
         assertEq(_nextCategories[_nextCategories.length - 1], "Seventh");
     }
 
     function testFuzz_AddCategory(string memory category) public {
         project.addCategory(category);
-        (string[] memory _prevCategories, , , ) = project.getProjectInfo();
+        (, string[] memory _prevCategories, ,  ) = project.getProjectInfo();
         assertEq(_prevCategories[_prevCategories.length - 1], category);
     }
 
@@ -68,7 +70,7 @@ contract KanbanProjectTest is Test {
 
         assertEq(tasks[0].description, "Task 1 description");
         assertEq(tasks[1].category, "Second");
-        assertEq(tasks[2].assigneeAddress, address(user3));
+        assertEq(tasks[2].assigneesAddys, address(user3));
     }
 
     function test_BatchEditTasks() public {
@@ -171,20 +173,20 @@ contract KanbanProjectTest is Test {
 
     function test_EditCategory() public {
         project.editCategory(4, "Number five");
-        (string[] memory _prevCategories, ) = project.getProjectInfo();
+        (, string[] memory _prevCategories, , ) = project.getProjectInfo();
         assertEq(_prevCategories[_prevCategories.length - 1], "Number five");
     }
 
     function testFuzz_EditCategory(string calldata newName) public {
         project.editCategory(4, newName);
-        (string[] memory _prevCategories, ) = project.getProjectInfo();
+        (,string[] memory _prevCategories, , ) = project.getProjectInfo();
         assertEq(_prevCategories[_prevCategories.length - 1], newName);
     }
 
     function test_RemoveCategory() public {
         project.removeCategory(3);
 
-        (string[] memory _prevCategories, ) = project.getProjectInfo();
+        (,string[] memory _prevCategories, ,) = project.getProjectInfo();
         assertEq(_prevCategories[2], "Third");
         assertEq(_prevCategories[3], "Fifth");
     }
@@ -198,7 +200,7 @@ contract KanbanProjectTest is Test {
 
         vm.startPrank(user1);
         project.addCategory("Sixth");
-        (string[] memory _categories, ) = project.getProjectInfo();
+        (,string[] memory _categories, ,) = project.getProjectInfo();
         vm.stopPrank();
         assertEq(_categories[5], "Sixth");
 
