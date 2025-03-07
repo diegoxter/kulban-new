@@ -11,6 +11,7 @@ import {
   getBoardInfo,
   getUserBoards,
   removeCategory,
+  removeTask,
 } from "./dataManagement/index";
 const app = express();
 
@@ -156,6 +157,29 @@ app.delete(
         category,
       );
       res.status(200).json({ message: "Category deleted successfully" });
+    } catch (error) {
+      const err = error as { status?: number; message: string };
+      res.status(err.status ?? 500).send({ error: err.message });
+    }
+  },
+);
+
+app.delete(
+  "/delete-task",
+  authenticate,
+  async (req: Request, res: Response) => {
+    const { boardAddress, taskID }: { boardAddress: string; taskID: string } =
+      req.body;
+
+    try {
+      await removeTask(
+        // @ts-expect-error we sending this to the req
+        req.user.user,
+        boardAddress,
+        taskID,
+      );
+
+      res.status(200).json({ message: "Task deleted successfully" });
     } catch (error) {
       const err = error as { status?: number; message: string };
       res.status(err.status ?? 500).send({ error: err.message });

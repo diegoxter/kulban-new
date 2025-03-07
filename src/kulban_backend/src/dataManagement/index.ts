@@ -20,6 +20,7 @@ const boards: Board[] = [
         description: "Description 1",
         category: "cat 1",
         state: 0,
+        isActive: true,
       },
       {
         id: "2",
@@ -27,6 +28,7 @@ const boards: Board[] = [
         description: "Description 2",
         category: "cat 2",
         state: 2,
+        isActive: true,
       },
       {
         id: "3",
@@ -187,7 +189,22 @@ export async function editTasks(
   return true;
 }
 
-// TO DO removeTask (mark it as isActive: false)
+export async function removeTask(
+  userID: string,
+  boardAddress: string,
+  taskID: string,
+): Promise<boolean | Error> {
+  const boardIndex = returnBoardIndexOrError(boardAddress, userID);
+  const board = boards[boardIndex];
+
+  const task = board.tasks!.find((t) => t.id === taskID);
+
+  if (!task) throw new Error("Task not found.");
+
+  task.isActive = false;
+
+  return true;
+}
 
 export async function removeCategory(
   userID: string,

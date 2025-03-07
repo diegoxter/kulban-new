@@ -4,6 +4,7 @@ export interface Task {
   description: string;
   category: string;
   state: number | string;
+  isActive?: boolean;
 }
 
 export interface Board {
