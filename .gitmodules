@@ -4,3 +4,6 @@
 [submodule "src/kulban_contracts/dependencies/forge-std"]
 	path = src/kulban_contracts/dependencies/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "src/kulban_contracts/lib/openzeppelin-contracts"]
+	path = src/kulban_contracts/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
