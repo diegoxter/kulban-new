@@ -28,9 +28,9 @@ contract KanbanProject is AccessControl {
 
     struct Task {
         string description;
-        string assigneeID;
+        string[] assigneesIDs;
         string category;
-        address assigneeAddress;
+        address[] assigneesAddys;
         TaskState state;
         bool isActive;
     }
@@ -75,8 +75,8 @@ contract KanbanProject is AccessControl {
     function batchAddTask(
         string[] calldata newDescriptions,
         string[] calldata newCategories,
-        string[] calldata newAssigneesIDs,
-        address[] calldata newAssignees
+        string[][] calldata newAssigneesIDs,
+        address[][] calldata newAssignees
     ) public onlyRole(EDITOR_ROLE) returns (uint256[] memory) {
         require(
             newDescriptions.length == newCategories.length &&
@@ -88,7 +88,10 @@ contract KanbanProject is AccessControl {
         uint256[] memory taskIndexes = new uint256[](newDescriptions.length);
 
         for (uint256 index = 0; index < newDescriptions.length; index++) {
-            require(hasRole(EDITOR_ROLE, newAssignees[index]));
+            for (uint256 i = 0; i < newAssignees[index].length; i++) {
+                require(hasRole(EDITOR_ROLE, newAssignees[index][i]));
+            }
+
             taskIndexes[index] = _addTask(
                 newDescriptions[index],
                 newCategories[index],
@@ -115,8 +118,8 @@ contract KanbanProject is AccessControl {
                 taskIDs[i],
                 tasksInfo[i].description,
                 tasksInfo[i].category,
-                tasksInfo[i].assigneeID,
-                tasksInfo[i].assigneeAddress,
+                tasksInfo[i].assigneesIDs,
+                tasksInfo[i].assigneesAddys,
                 tasksInfo[i].state,
                 tasksInfo[i].isActive
             );
@@ -142,7 +145,7 @@ contract KanbanProject is AccessControl {
         _editCategory(_categoryIndex, _newCategoryName);
     }
 
-    function removeCategory(
+    function deleteCategory(
         uint256 _categoryIndex
     ) public onlyRole(EDITOR_ROLE) {
         require(
@@ -256,8 +259,8 @@ contract KanbanProject is AccessControl {
     function _addTask(
         string calldata _description,
         string calldata _category,
-        string calldata _assigneeID,
-        address _assignee
+        string[] calldata _assigneesIDs,
+        address[] calldata _assigneesAddys
     ) internal returns (uint256) {
         require(
             _checkIfValidCategory(_category, false),
@@ -266,9 +269,9 @@ contract KanbanProject is AccessControl {
 
         tasks[taskIndex] = Task({
             description: _description,
-            assigneeID: _assigneeID,
+            assigneesIDs: _assigneesIDs,
             category: _category,
-            assigneeAddress: _assignee,
+            assigneesAddys: _assigneesAddys,
             state: TaskState.Pending,
             isActive: true
         });
@@ -289,8 +292,8 @@ contract KanbanProject is AccessControl {
         uint256 _taskID,
         string calldata _newDescription,
         string calldata _newCategory,
-        string calldata _newAssigneeID,
-        address _newAssignee,
+        string[] calldata _newAssigneesIDs,
+        address[] calldata _newAssigneesAddys,
         TaskState _newState,
         bool _isActive
     ) internal {
@@ -305,11 +308,11 @@ contract KanbanProject is AccessControl {
         if (bytes(_newCategory).length > 0) {
             task.category = _newCategory;
         }
-        if (bytes(_newAssigneeID).length > 0) {
-            task.assigneeID = _newAssigneeID;
+        if (bytes(_newAssigneesIDs[0]).length > 0) {
+            task.assigneesIDs = _newAssigneesIDs;
         }
-        if (_newAssignee != address(0)) {
-            task.assigneeAddress = _newAssignee;
+        if (_newAssigneesAddys[0] != address(0)) {
+            task.assigneesAddys = _newAssigneesAddys;
         }
         if (_newState != task.state) {
             task.state = _newState;

@@ -22,5 +22,5 @@ export const AUTH_CONTRACT_ADDRESS: string =
     : process.env.AUTH_CONTRACT_ADDRESS!;
 export const DEPLOYER_CONTRACT_ADDRESS: string =
   process.env.NODE_ENV == "development"
-    ? "0x59F2f1fCfE2474fD5F0b9BA1E73ca90b143Eb8d0"
+    ? "0x71C95911E9a5D330f4D621842EC243EE1343292e"
     : process.env.DEPLOYER_CONTRACT_ADDRESS!;

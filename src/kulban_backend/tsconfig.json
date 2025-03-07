@@ -14,5 +14,5 @@
         "noEmit": true,
         "experimentalDecorators": true
     },
-    "include": ["src/**/*", "app.d.ts", "global.d.ts"]
+    "include": ["src/**/*.ts","src/**/*.d.ts"]
 }

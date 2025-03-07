@@ -19,6 +19,7 @@ export async function registerUser(username: string, password: string) {
   const provider = new ethers.JsonRpcProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
   const contract = new ethers.Contract(AUTH_CONTRACT_ADDRESS, abi, signer);
+
   try {
     const tx = await contract["registerUser"](
       userID(username),
@@ -54,8 +55,7 @@ export async function loginUser(username: string, password: string) {
     return jwToken;
   } catch (error) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const err = error as any;
-    throw new Error(`${err.message ?? err.reason}`);
+    throw new Error(`${(error as Error).message ?? (error as any).reason}`);
   }
 }
 
