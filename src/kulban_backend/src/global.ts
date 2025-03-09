@@ -1,12 +1,17 @@
+export interface Member {
+  memberID: string;
+  memberAddress: string;
+  isActive: boolean;
+}
+
 export interface Task {
   id: string;
   title: string;
   description: string;
   category: string;
+  members: Member[];
   state: number | string;
   isActive?: boolean;
-  assigneesIDs: string[];
-  assigneesAddys: string[];
 }
 
 export interface Board {
@@ -15,7 +20,7 @@ export interface Board {
   categories: string[];
   activeTasksNumber: string;
   tasks?: Task[];
-  members: Array<[string, boolean]>;
+  members: Member[];
 }
 
 export interface EditCategoryParameters {

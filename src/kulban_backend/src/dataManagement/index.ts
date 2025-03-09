@@ -1,5 +1,5 @@
 import { ethers, type TransactionReceipt } from "ethers";
-import type { Board, Task, EditCategoryParameters } from "../global";
+import type { Board, Task, Member, EditCategoryParameters } from "../global";
 import deployerABI from "./DeployerABI.json";
 import kanbanProjectABI from "./KanbanProjectABI.json";
 import { RPC_URL, PRIVATE_KEY, DEPLOYER_CONTRACT_ADDRESS } from "../config";
@@ -47,25 +47,46 @@ export async function getUserBoards(userID: string) {
 
 export async function getBoardInfo(boardAddress: string): Promise<Board> {
   const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
   const kanbanProjectContract = new ethers.Contract(
     boardAddress,
     kanbanProjectABI.abi,
-    provider,
+    signer,
   );
 
   try {
     const boardInfo = await kanbanProjectContract.getProjectInfo();
 
+    const activeMembers: Member[] = boardInfo[3].map((member: Member) => ({
+      memberAddress: member.memberAddress,
+      isActive: member.isActive,
+      memberID: member.memberID,
+    }));
+
+    const activeTasks: [bigint, bigint[], Task[]] =
+      await kanbanProjectContract.getActiveTasks();
+
+    console.log(activeTasks);
+
+    // eslint-disable-next-line
+    const tasks = activeTasks[2].map((task: any, index: number) => ({
+      id: activeTasks[1][index].toString(),
+      title: task[0] as string,
+      description: task[1] as string,
+      category: task[2] as string,
+      members: activeMembers,
+      state: (task[4] as bigint).toString(),
+      isActive: task[5],
+    }));
+
     const board: Board = {
       address: boardAddress,
       name: boardInfo[0],
-      categories: boardInfo[1],
+      categories: boardInfo[1].map((cat: string) => cat),
       activeTasksNumber: (boardInfo[2] as bigint).toString(),
-      members: boardInfo[3],
+      members: activeMembers,
+      tasks: tasks,
     };
-
-    const activeTasks = await kanbanProjectContract.getActiveTasks();
-    console.log(activeTasks);
 
     return board;
   } catch (error) {
@@ -87,6 +108,8 @@ export async function createBoard(
 
   try {
     const tx = await deployerContract.deployNew(
+      ethers.ZeroAddress,
+      signer.address,
       newBoard.name,
       userID,
       newBoard.categories,
@@ -133,25 +156,25 @@ export async function createTasks(
     kanbanProjectABI.abi,
     signer,
   );
-
+  console.log(tasksData);
   try {
+    const tasksTitles = tasksData.map((task) => task.title);
     const tasksDescriptions = tasksData.map((task) => task.description);
     const tasksCategories = tasksData.map((task) => task.category);
-    const tasksAssigneesIDs = tasksData.map((task) => task.assigneesIDs);
-    const tasksAssigneesAddys = tasksData.map((task) => task.assigneesAddys);
+    const tasksMembers = tasksData.map((task) => task.members);
 
     const tx = await kanbanProjectContract.batchAddTask(
+      tasksTitles,
       tasksDescriptions,
       tasksCategories,
-      tasksAssigneesIDs,
-      tasksAssigneesAddys,
+      tasksMembers,
     );
     const receipt: TransactionReceipt = await tx.wait();
     console.log(receipt.status);
 
     return true;
   } catch (error) {
-    throw new Error(`Couldnt add the new category: ${error}`);
+    throw new Error(`Couldnt add the new task: ${error}`);
   }
 }
 
@@ -193,6 +216,7 @@ export async function editTasks(
     kanbanProjectABI.abi,
     signer,
   );
+  console.log(tasksData);
 
   try {
     const tx = await kanbanProjectContract.batchEditTasks(tasksIDs, tasksData);
@@ -201,13 +225,13 @@ export async function editTasks(
 
     return true;
   } catch (error) {
-    throw new Error(`Couldnt add the new category: ${error}`);
+    throw new Error(`Couldnt edit tasks: ${error}`);
   }
 }
 
 export async function removeTask(
   boardAddress: string,
-  taskID: number,
+  taskID: bigint,
 ): Promise<boolean | Error> {
   const provider = new ethers.JsonRpcProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
@@ -224,13 +248,13 @@ export async function removeTask(
 
     return true;
   } catch (error) {
-    throw new Error(`Couldnt add the new category: ${error}`);
+    throw new Error(`Couldnt remove the task: ${error}`);
   }
 }
 
 export async function removeCategory(
   boardAddress: string,
-  categoryIndex: number,
+  categoryIndex: bigint,
 ): Promise<boolean | Error> {
   const provider = new ethers.JsonRpcProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);

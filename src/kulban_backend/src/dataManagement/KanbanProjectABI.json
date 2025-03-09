@@ -7,6 +7,11 @@
 					"type": "address"
 				},
 				{
+					"internalType": "address",
+					"name": "relayer",
+					"type": "address"
+				},
+				{
 					"internalType": "string",
 					"name": "_projectName",
 					"type": "string"
@@ -190,6 +195,11 @@
 			"inputs": [
 				{
 					"internalType": "string[]",
+					"name": "newTitles",
+					"type": "string[]"
+				},
+				{
+					"internalType": "string[]",
 					"name": "newDescriptions",
 					"type": "string[]"
 				},
@@ -199,14 +209,26 @@
 					"type": "string[]"
 				},
 				{
-					"internalType": "string[]",
-					"name": "newAssigneesIDs",
-					"type": "string[]"
-				},
-				{
-					"internalType": "address[]",
-					"name": "newAssignees",
-					"type": "address[]"
+					"components": [
+						{
+							"internalType": "string",
+							"name": "memberID",
+							"type": "string"
+						},
+						{
+							"internalType": "address",
+							"name": "memberAddress",
+							"type": "address"
+						},
+						{
+							"internalType": "bool",
+							"name": "isActive",
+							"type": "bool"
+						}
+					],
+					"internalType": "struct KanbanProject.Member[][]",
+					"name": "newMembers",
+					"type": "tuple[][]"
 				}
 			],
 			"name": "batchAddTask",
@@ -231,12 +253,12 @@
 					"components": [
 						{
 							"internalType": "string",
-							"name": "description",
+							"name": "title",
 							"type": "string"
 						},
 						{
 							"internalType": "string",
-							"name": "assigneeID",
+							"name": "description",
 							"type": "string"
 						},
 						{
@@ -245,9 +267,26 @@
 							"type": "string"
 						},
 						{
-							"internalType": "address",
-							"name": "assigneeAddress",
-							"type": "address"
+							"components": [
+								{
+									"internalType": "string",
+									"name": "memberID",
+									"type": "string"
+								},
+								{
+									"internalType": "address",
+									"name": "memberAddress",
+									"type": "address"
+								},
+								{
+									"internalType": "bool",
+									"name": "isActive",
+									"type": "bool"
+								}
+							],
+							"internalType": "struct KanbanProject.Member[]",
+							"name": "members",
+							"type": "tuple[]"
 						},
 						{
 							"internalType": "enum KanbanProject.TaskState",
@@ -284,12 +323,12 @@
 					"components": [
 						{
 							"internalType": "string",
-							"name": "description",
+							"name": "title",
 							"type": "string"
 						},
 						{
 							"internalType": "string",
-							"name": "assigneeID",
+							"name": "description",
 							"type": "string"
 						},
 						{
@@ -298,9 +337,26 @@
 							"type": "string"
 						},
 						{
-							"internalType": "address",
-							"name": "assigneeAddress",
-							"type": "address"
+							"components": [
+								{
+									"internalType": "string",
+									"name": "memberID",
+									"type": "string"
+								},
+								{
+									"internalType": "address",
+									"name": "memberAddress",
+									"type": "address"
+								},
+								{
+									"internalType": "bool",
+									"name": "isActive",
+									"type": "bool"
+								}
+							],
+							"internalType": "struct KanbanProject.Member[]",
+							"name": "members",
+							"type": "tuple[]"
 						},
 						{
 							"internalType": "enum KanbanProject.TaskState",
@@ -319,6 +375,19 @@
 				}
 			],
 			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "_categoryIndex",
+					"type": "uint256"
+				}
+			],
+			"name": "deleteCategory",
+			"outputs": [],
+			"stateMutability": "nonpayable",
 			"type": "function"
 		},
 		{
@@ -362,15 +431,20 @@
 					"type": "uint256"
 				},
 				{
+					"internalType": "uint256[]",
+					"name": "",
+					"type": "uint256[]"
+				},
+				{
 					"components": [
 						{
 							"internalType": "string",
-							"name": "description",
+							"name": "title",
 							"type": "string"
 						},
 						{
 							"internalType": "string",
-							"name": "assigneeID",
+							"name": "description",
 							"type": "string"
 						},
 						{
@@ -379,9 +453,26 @@
 							"type": "string"
 						},
 						{
-							"internalType": "address",
-							"name": "assigneeAddress",
-							"type": "address"
+							"components": [
+								{
+									"internalType": "string",
+									"name": "memberID",
+									"type": "string"
+								},
+								{
+									"internalType": "address",
+									"name": "memberAddress",
+									"type": "address"
+								},
+								{
+									"internalType": "bool",
+									"name": "isActive",
+									"type": "bool"
+								}
+							],
+							"internalType": "struct KanbanProject.Member[]",
+							"name": "members",
+							"type": "tuple[]"
 						},
 						{
 							"internalType": "enum KanbanProject.TaskState",
@@ -423,6 +514,11 @@
 				},
 				{
 					"components": [
+						{
+							"internalType": "string",
+							"name": "memberID",
+							"type": "string"
+						},
 						{
 							"internalType": "address",
 							"name": "memberAddress",
@@ -543,19 +639,6 @@
 				}
 			],
 			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "uint256",
-					"name": "_categoryIndex",
-					"type": "uint256"
-				}
-			],
-			"name": "removeCategory",
-			"outputs": [],
-			"stateMutability": "nonpayable",
 			"type": "function"
 		},
 		{

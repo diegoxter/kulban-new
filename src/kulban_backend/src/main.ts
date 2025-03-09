@@ -152,7 +152,7 @@ app.delete(
     const {
       boardAddress,
       categoryIndex,
-    }: { boardAddress: string; categoryIndex: number } = req.body;
+    }: { boardAddress: string; categoryIndex: bigint } = req.body;
 
     try {
       await removeCategory(boardAddress, categoryIndex);
@@ -168,7 +168,7 @@ app.delete(
   "/delete-task",
   authenticate,
   async (req: Request, res: Response) => {
-    const { boardAddress, taskID }: { boardAddress: string; taskID: number } =
+    const { boardAddress, taskID }: { boardAddress: string; taskID: bigint } =
       req.body;
 
     try {

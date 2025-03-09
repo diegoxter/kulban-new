@@ -70,42 +70,42 @@ contract KanbanProjectTest is Test {
 
         assertEq(tasks[0].description, "Task 1 description");
         assertEq(tasks[1].category, "Second");
-        assertEq(tasks[2].assigneesAddys[0], address(user3));
+        assertEq(tasks[2].members[0].memberAddress, address(user3));
     }
 
     function test_BatchEditTasks() public {
-        string[] memory _assignees = new string[](1);
-        address[] memory _assigneesAddys = new address[](1);
-        _assigneesAddys[0] = address(0);
-
-        address[] memory _assigneesAddys1 = new address[](1);
-        _assigneesAddys1[0] = address(user3);
+        KanbanProject.Member[] memory _members = new KanbanProject.Member[](1);
+        _members[0] = KanbanProject.Member({
+            memberAddress: user3,
+            isActive: true,
+            memberID: ""
+        });
 
         KanbanProject.Task memory task1 = KanbanProject.Task({
+            title: "",
             description: "Task 1 modified",
-            assigneesIDs: _assignees,
             category: "",
-            assigneesAddys: _assigneesAddys1,
+            members: _members,
             state: KanbanProject.TaskState.InProcess,
             isActive: true
         });
 
         KanbanProject.Task memory task2 = KanbanProject.Task({
+            title: "",
             description: "",
-            assigneesIDs: _assignees,
             category: "Third",
-            assigneesAddys: _assigneesAddys,
+            members: _members,
             state: KanbanProject.TaskState.InProcess,
             isActive: false
         });
 
-        _assignees[0] = "3rd Assignee";
+        _members[0].memberID = "3rd Assignee";
 
         KanbanProject.Task memory task3 = KanbanProject.Task({
+            title: "",
             description: "",
-            assigneesIDs: _assignees,
             category: "",
-            assigneesAddys: _assigneesAddys,
+            members: _members,
             state: KanbanProject.TaskState.Done,
             isActive: true
         });
@@ -126,10 +126,10 @@ contract KanbanProjectTest is Test {
         );
 
         assertEq(savedTasks[0].description, "Task 1 modified");
-        assertEq(savedTasks[0].assigneesAddys[0], address(user3));
+        assertEq(savedTasks[0].members[0].memberAddress, address(user3));
         assertEq(savedTasks[1].category, "Third");
         assertEq(savedTasks[1].isActive, false);
-        assertEq(savedTasks[2].assigneesIDs[0], "3rd Assignee");
+        assertEq(savedTasks[0].members[0].memberID, "3rd Assignee");
         assertEq(
             uint8(savedTasks[2].state),
             uint8(KanbanProject.TaskState.Done)
@@ -138,18 +138,24 @@ contract KanbanProjectTest is Test {
 
     function test_DeleteTasks() public {
         project.deleteTask(1);
-        (, KanbanProject.Task[] memory activeTasks) = project.getActiveTasks();
+        (, , KanbanProject.Task[] memory activeTasks) = project
+            .getActiveTasks();
 
         assertEq(activeTasks.length, 2);
 
         project.deleteTask(2);
-        (, KanbanProject.Task[] memory newActiveTasks) = project
+        (, , KanbanProject.Task[] memory newActiveTasks) = project
             .getActiveTasks();
 
         assertEq(newActiveTasks.length, 1);
     }
 
     function setBatchAddAndEditTasks() public {
+        string[] memory titles = new string[](3);
+        titles[0] = "Task 1 title";
+        titles[1] = "Task 2 title";
+        titles[2] = "Task 3 title";
+
         string[] memory descriptions = new string[](3);
         descriptions[0] = "Task 1 description";
         descriptions[1] = "Task 2 description";
@@ -160,20 +166,24 @@ contract KanbanProjectTest is Test {
         categories[1] = "Second";
         categories[2] = "Third";
 
-        string[][] memory assigneesIDs = new string[][](3);
-        address[][] memory assignees = new address[][](3);
+        KanbanProject.Member[][] memory members = new KanbanProject.Member[][](
+            3
+        );
         for (uint i = 0; i < 3; i++) {
-            assigneesIDs[i] = new string[](1);
-            assignees[i] = new address[](1);
+            members[i] = new KanbanProject.Member[](1);
         }
 
-        assigneesIDs[0][0] = "Assignee 1";
-        assigneesIDs[1][0] = "Assignee 2";
-        assigneesIDs[2][0] = "Assignee 3";
+        members[0][0].memberID = "Assignee 1";
+        members[1][0].memberID = "Assignee 2";
+        members[2][0].memberID = "Assignee 3";
 
-        assignees[0][0] = user1;
-        assignees[1][0] = user2;
-        assignees[2][0] = user3;
+        members[0][0].memberAddress = user1;
+        members[1][0].memberAddress = user2;
+        members[2][0].memberAddress = user3;
+
+        members[0][0].isActive = true;
+        members[1][0].isActive = true;
+        members[2][0].isActive = true;
 
         bytes32[] memory _roles = new bytes32[](2);
         _roles[0] = project.VIEWER_ROLE();
@@ -183,7 +193,7 @@ contract KanbanProjectTest is Test {
         project.grantRoles("user2", user2, _roles);
         project.grantRoles("user3", user3, _roles);
 
-        project.batchAddTask(descriptions, categories, assigneesIDs, assignees);
+        project.batchAddTask(titles, descriptions, categories, members);
     }
 
     function test_EditCategory() public {
