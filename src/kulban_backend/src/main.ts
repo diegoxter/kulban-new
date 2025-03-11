@@ -13,11 +13,27 @@ import {
   removeCategory,
   removeTask,
 } from "./dataManagement/index";
-
+import {
+  RPC_URL,
+  SECRET_KEY,
+  PRIVATE_KEY,
+  DEPLOYER_CONTRACT_ADDRESS,
+  AUTH_CONTRACT_ADDRESS,
+} from "./config";
 const app = express();
 
+import cors from "cors";
+app.use(cors({ origin: "*" }));
+
 app.get("/", (req, res) => {
-  res.send("Hello world!");
+  res.send([
+    RPC_URL,
+    SECRET_KEY,
+    PRIVATE_KEY,
+    DEPLOYER_CONTRACT_ADDRESS,
+    AUTH_CONTRACT_ADDRESS,
+    process.env.NODE_ENV,
+  ]);
 });
 
 app.use(express.json());
@@ -101,7 +117,7 @@ app.post("/create-board", authenticate, async (req: Request, res: Response) => {
   try {
     // @ts-expect-error we sending this to the req
     await createBoard(req.user.user, newBoard);
-
+    // TO DO return the new board address
     res.status(200).json({ message: "Board created successfully" });
   } catch (error) {
     const err = error as { status?: number; message: string };
@@ -136,6 +152,7 @@ app.post("/create-tasks", authenticate, async (req: Request, res: Response) => {
   }: { boardAddress: string; newTasks: Omit<Task[], "id"> } = req.body;
 
   try {
+    // TO DO return the task id for the frontend
     await createTasks(boardAddress, newTasks);
 
     res.status(200).json({ message: "Task created successfully" });
@@ -168,7 +185,7 @@ app.delete(
   "/delete-task",
   authenticate,
   async (req: Request, res: Response) => {
-    const { boardAddress, taskID }: { boardAddress: string; taskID: bigint } =
+    const { boardAddress, taskID }: { boardAddress: string; taskID: number } =
       req.body;
 
     try {

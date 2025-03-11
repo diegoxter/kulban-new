@@ -2,3 +2,5 @@
 ## npm test
 #
  cd src/kulban_contracts/ && forge test
+
+# exit 1

@@ -1,24 +1,32 @@
-import prettier from "eslint-config-prettier";
-import js from "@eslint/js";
-import { includeIgnoreFile } from "@eslint/compat";
-import svelte from "eslint-plugin-svelte";
 import globals from "globals";
-import { fileURLToPath } from "node:url";
-import ts from "typescript-eslint";
-import svelteParser from "svelte-eslint-parser";
+import pluginJs from "@eslint/js";
+import tseslint from "typescript-eslint";
 import tsParser from "@typescript-eslint/parser";
+import eslintPluginSvelte from "eslint-plugin-svelte";
+import svelteParser from "svelte-eslint-parser";
 import svelteConfig from "./svelte.config.js";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
+import { includeIgnoreFile } from "@eslint/compat";
+
+import { fileURLToPath } from "node:url";
+
 const gitignorePath = fileURLToPath(new URL("../../.gitignore", import.meta.url));
 
-export default ts.config(
-	{ files: ["**/*.{js,mjs,cjs,ts}"] },
-	includeIgnoreFile(gitignorePath),
-	js.configs.recommended,
-	...ts.configs.recommended,
-	...svelte.configs["flat/recommended"],
-	prettier,
+export default tseslint.config(
+	{ files: ["src/**/*.{js,mjs,cjs,ts}"] },
+	{
+		languageOptions: {
+			globals: {
+				...globals.browser,
+				...globals.node,
+				App: "writable",
+			},
+		},
+	},
+	pluginJs.configs.recommended,
+	...tseslint.configs.recommended,
+	...eslintPluginSvelte.configs["flat/recommended"],
 	{
 		languageOptions: {
 			parser: tsParser,
@@ -29,16 +37,14 @@ export default ts.config(
 		},
 	},
 	{
-		languageOptions: {
-			globals: {
-				...globals.browser,
-				...globals.node,
-				App: "writable",
-			},
-		},
-	},
-	{
-		files: ["**/*.svelte", "*.svelte"],
+		files: [
+			"src/**/*.svelte",
+			"src/*.svelte",
+			"src/**/*.svelte.ts",
+			"src/*.svelte.ts",
+			"src/**/*.svelte.js",
+			"src/*.svelte.js",
+		],
 		languageOptions: {
 			parser: svelteParser,
 			parserOptions: {
@@ -47,8 +53,8 @@ export default ts.config(
 			},
 		},
 	},
+	includeIgnoreFile(gitignorePath),
 	eslintPluginPrettierRecommended,
-
 	{
 		ignores: [
 			"node_modules/",

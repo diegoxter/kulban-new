@@ -1,8 +1,7 @@
 {
   "extends": "./.svelte-kit/tsconfig.json",
   "compilerOptions": {
-    "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "strict": true,
     "allowJs": true,
     "checkJs": true,
     "esModuleInterop": true,
@@ -10,9 +9,6 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "strict": true,
-    "moduleResolution": "bundler",
-    "isolatedModules": true,
-    "types": ["vite/client"]
+    "moduleResolution": "bundler"
   }
 }

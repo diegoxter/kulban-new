@@ -1,11 +1,11 @@
-import { ethers, type TransactionReceipt } from "ethers";
+import { ethers } from "ethers";
 import type { Board, Task, Member, EditCategoryParameters } from "../global";
 import deployerABI from "./DeployerABI.json";
 import kanbanProjectABI from "./KanbanProjectABI.json";
 import { RPC_URL, PRIVATE_KEY, DEPLOYER_CONTRACT_ADDRESS } from "../config";
 
 export async function getUserBoards(userID: string) {
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const provider = ethers.getDefaultProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
   const deployerContract = new ethers.Contract(
     DEPLOYER_CONTRACT_ADDRESS,
@@ -19,7 +19,7 @@ export async function getUserBoards(userID: string) {
       await deployerContract.getProjectsWhereIDIsViewer(userID);
 
     for (const boardAddress of userBoardsAddresses) {
-      const _provider = new ethers.JsonRpcProvider(RPC_URL);
+      const _provider = ethers.getDefaultProvider(RPC_URL);
       const _signer = new ethers.Wallet(PRIVATE_KEY!, _provider);
 
       const kanbanProjectContract = new ethers.Contract(
@@ -46,7 +46,7 @@ export async function getUserBoards(userID: string) {
 }
 
 export async function getBoardInfo(boardAddress: string): Promise<Board> {
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const provider = ethers.getDefaultProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
   const kanbanProjectContract = new ethers.Contract(
     boardAddress,
@@ -98,7 +98,7 @@ export async function createBoard(
   userID: string,
   newBoard: Board,
 ): Promise<boolean | Error> {
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const provider = ethers.getDefaultProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
   const deployerContract = new ethers.Contract(
     DEPLOYER_CONTRACT_ADDRESS,
@@ -107,15 +107,15 @@ export async function createBoard(
   );
 
   try {
-    const tx = await deployerContract.deployNew(
+    await deployerContract.deployNew(
       ethers.ZeroAddress,
       signer.address,
       newBoard.name,
       userID,
       newBoard.categories,
     );
-    const receipt: TransactionReceipt = await tx.wait();
-    console.log(receipt.status);
+    //const receipt: TransactionReceipt = await tx.wait();
+    //console.log(receipt.status);
     return true;
   } catch (error) {
     throw new Error(`Couldnt create new board: ${error}`);
@@ -126,7 +126,7 @@ export async function createCategory(
   boardAddress: string,
   newCategory: string,
 ): Promise<boolean> {
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const provider = ethers.getDefaultProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
   const kanbanProjectContract = new ethers.Contract(
     boardAddress,
@@ -135,9 +135,9 @@ export async function createCategory(
   );
 
   try {
-    const tx = await kanbanProjectContract.addCategory(newCategory);
-    const receipt: TransactionReceipt = await tx.wait();
-    console.log(receipt.status);
+    await kanbanProjectContract.addCategory(newCategory);
+    //const receipt: TransactionReceipt = await tx.wait();
+    //console.log(receipt.status);
 
     return true;
   } catch (error) {
@@ -149,7 +149,7 @@ export async function createTasks(
   boardAddress: string,
   tasksData: Omit<Task, "id">[],
 ): Promise<boolean> {
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const provider = ethers.getDefaultProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
   const kanbanProjectContract = new ethers.Contract(
     boardAddress,
@@ -163,14 +163,14 @@ export async function createTasks(
     const tasksCategories = tasksData.map((task) => task.category);
     const tasksMembers = tasksData.map((task) => task.members);
 
-    const tx = await kanbanProjectContract.batchAddTask(
+    await kanbanProjectContract.batchAddTask(
       tasksTitles,
       tasksDescriptions,
       tasksCategories,
       tasksMembers,
     );
-    const receipt: TransactionReceipt = await tx.wait();
-    console.log(receipt.status);
+    //const receipt: TransactionReceipt = await tx.wait();
+    //console.log(receipt.status);
 
     return true;
   } catch (error) {
@@ -182,7 +182,7 @@ export async function editCategory(
   boardAddress: string,
   categoryData: EditCategoryParameters,
 ): Promise<boolean | Error> {
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const provider = ethers.getDefaultProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
   const kanbanProjectContract = new ethers.Contract(
     boardAddress,
@@ -191,12 +191,12 @@ export async function editCategory(
   );
 
   try {
-    const tx = await kanbanProjectContract.editCategory(
+    await kanbanProjectContract.editCategory(
       categoryData.categoryIndex,
       categoryData.newCategoryValue,
     );
-    const receipt: TransactionReceipt = await tx.wait();
-    console.log(receipt.status);
+    //const receipt: TransactionReceipt = await tx.wait();
+    //console.log(receipt.status);
 
     return true;
   } catch (error) {
@@ -209,7 +209,7 @@ export async function editTasks(
   tasksIDs: number[],
   tasksData: Task[],
 ): Promise<boolean | Error> {
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const provider = ethers.getDefaultProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
   const kanbanProjectContract = new ethers.Contract(
     boardAddress,
@@ -219,10 +219,10 @@ export async function editTasks(
   console.log(tasksData);
 
   try {
-    const tx = await kanbanProjectContract.batchEditTasks(tasksIDs, tasksData);
-    const receipt: TransactionReceipt = await tx.wait();
-    console.log(receipt.status);
-
+    await kanbanProjectContract.batchEditTasks(tasksIDs, tasksData);
+    //const receipt: TransactionReceipt = await tx.wait();
+    //console.log(receipt.status);
+    //
     return true;
   } catch (error) {
     throw new Error(`Couldnt edit tasks: ${error}`);
@@ -231,9 +231,9 @@ export async function editTasks(
 
 export async function removeTask(
   boardAddress: string,
-  taskID: bigint,
+  taskID: number,
 ): Promise<boolean | Error> {
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const provider = ethers.getDefaultProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
   const kanbanProjectContract = new ethers.Contract(
     boardAddress,
@@ -242,9 +242,9 @@ export async function removeTask(
   );
 
   try {
-    const tx = await kanbanProjectContract.deleteTask(taskID);
-    const receipt: TransactionReceipt = await tx.wait();
-    console.log(receipt.status);
+    await kanbanProjectContract.deleteTask(taskID);
+    //const receipt: TransactionReceipt = await tx.wait();
+    //console.log(receipt.status);
 
     return true;
   } catch (error) {
@@ -265,9 +265,9 @@ export async function removeCategory(
   );
 
   try {
-    const tx = await kanbanProjectContract.deleteCategory(categoryIndex);
-    const receipt: TransactionReceipt = await tx.wait();
-    console.log(receipt.status);
+    await kanbanProjectContract.deleteCategory(categoryIndex);
+    //const receipt: TransactionReceipt = await tx.wait();
+    //console.log(receipt.status);
 
     return true;
   } catch (error) {

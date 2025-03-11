@@ -9,18 +9,18 @@ export const SECRET_KEY: string =
     : process.env.BACKEND_SALT!;
 export const RPC_URL =
   process.env.NODE_ENV == "development"
-    ? "http://127.0.0.1:8545"
+    ? "https://sepolia.base.org"
     : process.env.RPC_URL;
 export const PRIVATE_KEY =
   process.env.NODE_ENV == "development"
-    ? "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
+    ? "0x4447bf28b2ff377844e69b651ce39f23a0fee749b95c921b44edde5e3bb10106"
     : process.env.PRIVATE_KEY;
 
 export const AUTH_CONTRACT_ADDRESS: string =
   process.env.NODE_ENV == "development"
-    ? "0x8464135c8F25Da09e49BC8782676a84730C318bC"
+    ? "0x35cf74d4C94779D91A998F3A28a6627E01a6bBa9"
     : process.env.AUTH_CONTRACT_ADDRESS!;
 export const DEPLOYER_CONTRACT_ADDRESS: string =
   process.env.NODE_ENV == "development"
-    ? "0x71C95911E9a5D330f4D621842EC243EE1343292e"
+    ? "0x88de9405af0f141427712885ffc102ec9d956110"
     : process.env.DEPLOYER_CONTRACT_ADDRESS!;

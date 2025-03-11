@@ -16,7 +16,7 @@ const passwordHash = (username: string, password: string) =>
   ethers.id(password + salt(username));
 
 export async function registerUser(username: string, password: string) {
-  const provider = new ethers.JsonRpcProvider(RPC_URL);
+  const provider = ethers.getDefaultProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
   const contract = new ethers.Contract(AUTH_CONTRACT_ADDRESS, abi, signer);
 

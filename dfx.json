@@ -11,7 +11,7 @@
       "custom": {
         "experimental": true,
         "candid_gen": "http",
-        "env": ["BACKEND_SALT"]
+        "env": ["SECRET_KEY", "PRIVATE_KEY", "RPC_URL", "AUTH_CONTRACT_ADDRESS", "DEPLOYER_CONTRACT_ADDRESS"]
       },
       "tech_stack": {
         "cdk": {
