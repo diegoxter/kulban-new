@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { ethers, TransactionReceipt } from "ethers";
+import { ethers } from "ethers";
 import { abi } from "./UserAuthenticationABI.json";
 import { generateToken, verifyToken } from "./jwtUtils";
 import {
@@ -27,8 +27,7 @@ export async function registerUser(username: string, password: string) {
       signer.getAddress(),
     );
 
-    const receipt: TransactionReceipt = await tx.wait();
-    console.log(receipt.status);
+    await tx.wait();
     const jwToken = generateToken(username);
 
     return jwToken;

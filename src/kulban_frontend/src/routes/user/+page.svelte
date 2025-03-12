@@ -16,11 +16,14 @@
 				},
 			});
 			const res = await response.json();
-			res.boards.forEach((board: App.Board) => {
-				userBoards.push(board);
-			});
 
-			console.log(res);
+			if (res.error) throw new Error(res.error);
+
+			if (res.boards.length !== userBoards.length) {
+				res.boards.forEach((board: App.Board) => {
+					userBoards.push(board);
+				});
+			}
 		} catch (error) {
 			console.log(error);
 		}
@@ -46,11 +49,13 @@
 				body: JSON.stringify(data),
 			});
 
-			data.newBoard.members = [];
-			console.log(data.newBoard);
-			userBoards.push(data.newBoard);
 			const res = await response.json();
-			console.log(res);
+
+			if (res.error) throw new Error(res.error);
+
+			data.newBoard.members = [];
+			data.newBoard.address = res.newAddress;
+			userBoards.push(data.newBoard);
 		} catch (error) {
 			console.log(error);
 		}

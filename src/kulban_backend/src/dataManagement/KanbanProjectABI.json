@@ -55,6 +55,19 @@
 			"anonymous": false,
 			"inputs": [
 				{
+					"indexed": false,
+					"internalType": "uint256[]",
+					"name": "newTasksID",
+					"type": "uint256[]"
+				}
+			],
+			"name": "NewTasksCreated",
+			"type": "event"
+		},
+		{
+			"anonymous": false,
+			"inputs": [
+				{
 					"indexed": true,
 					"internalType": "bytes32",
 					"name": "role",

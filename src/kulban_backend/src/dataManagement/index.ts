@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { ethers, EventLog, TransactionReceipt } from "ethers";
 import type { Board, Task, Member, EditCategoryParameters } from "../global";
 import deployerABI from "./DeployerABI.json";
 import kanbanProjectABI from "./KanbanProjectABI.json";
@@ -66,8 +66,6 @@ export async function getBoardInfo(boardAddress: string): Promise<Board> {
     const activeTasks: [bigint, bigint[], Task[]] =
       await kanbanProjectContract.getActiveTasks();
 
-    console.log(activeTasks);
-
     // eslint-disable-next-line
     const tasks = activeTasks[2].map((task: any, index: number) => ({
       id: activeTasks[1][index].toString(),
@@ -97,7 +95,7 @@ export async function getBoardInfo(boardAddress: string): Promise<Board> {
 export async function createBoard(
   userID: string,
   newBoard: Board,
-): Promise<boolean | Error> {
+): Promise<string | Error> {
   const provider = ethers.getDefaultProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
   const deployerContract = new ethers.Contract(
@@ -107,16 +105,30 @@ export async function createBoard(
   );
 
   try {
-    await deployerContract.deployNew(
+    const tx = await deployerContract.deployNew(
       ethers.ZeroAddress,
       signer.address,
       newBoard.name,
       userID,
       newBoard.categories,
     );
-    //const receipt: TransactionReceipt = await tx.wait();
-    //console.log(receipt.status);
-    return true;
+    const receipt: TransactionReceipt = await tx.wait();
+    const event = receipt.logs.find((log) => {
+      try {
+        const parsedLog = deployerContract.interface.parseLog(log);
+        return parsedLog?.name === "NewProjectDeployed";
+      } catch (e) {
+        console.error(e);
+        return false;
+      }
+    });
+
+    if (!event) {
+      throw new Error("No event NewProjectDeployed on tx.");
+    }
+
+    const boardAddress = (event as EventLog).args[0];
+    return boardAddress;
   } catch (error) {
     throw new Error(`Couldnt create new board: ${error}`);
   }
@@ -137,7 +149,6 @@ export async function createCategory(
   try {
     await kanbanProjectContract.addCategory(newCategory);
     //const receipt: TransactionReceipt = await tx.wait();
-    //console.log(receipt.status);
 
     return true;
   } catch (error) {
@@ -148,7 +159,7 @@ export async function createCategory(
 export async function createTasks(
   boardAddress: string,
   tasksData: Omit<Task, "id">[],
-): Promise<boolean> {
+): Promise<number[]> {
   const provider = ethers.getDefaultProvider(RPC_URL);
   const signer = new ethers.Wallet(PRIVATE_KEY!, provider);
   const kanbanProjectContract = new ethers.Contract(
@@ -156,23 +167,37 @@ export async function createTasks(
     kanbanProjectABI.abi,
     signer,
   );
-  console.log(tasksData);
+
   try {
     const tasksTitles = tasksData.map((task) => task.title);
     const tasksDescriptions = tasksData.map((task) => task.description);
     const tasksCategories = tasksData.map((task) => task.category);
     const tasksMembers = tasksData.map((task) => task.members);
 
-    await kanbanProjectContract.batchAddTask(
+    const tx = await kanbanProjectContract.batchAddTask(
       tasksTitles,
       tasksDescriptions,
       tasksCategories,
       tasksMembers,
     );
-    //const receipt: TransactionReceipt = await tx.wait();
-    //console.log(receipt.status);
+    const receipt: TransactionReceipt = await tx.wait();
+    const event = receipt.logs.find((log) => {
+      try {
+        const parsedLog = kanbanProjectContract.interface.parseLog(log);
+        return parsedLog?.name === "NewTasksCreated";
+      } catch (e) {
+        console.error(e);
+        return false;
+      }
+    });
 
-    return true;
+    if (!event) {
+      throw new Error("No event NewTasksCreated on tx.");
+    }
+
+    const newTasksID: bigint[] = (event as EventLog).args[0];
+
+    return newTasksID.map((taskID) => Number(taskID));
   } catch (error) {
     throw new Error(`Couldnt add the new task: ${error}`);
   }
@@ -196,7 +221,6 @@ export async function editCategory(
       categoryData.newCategoryValue,
     );
     //const receipt: TransactionReceipt = await tx.wait();
-    //console.log(receipt.status);
 
     return true;
   } catch (error) {
@@ -216,13 +240,11 @@ export async function editTasks(
     kanbanProjectABI.abi,
     signer,
   );
-  console.log(tasksData);
 
   try {
     await kanbanProjectContract.batchEditTasks(tasksIDs, tasksData);
     //const receipt: TransactionReceipt = await tx.wait();
-    //console.log(receipt.status);
-    //
+
     return true;
   } catch (error) {
     throw new Error(`Couldnt edit tasks: ${error}`);
@@ -244,7 +266,6 @@ export async function removeTask(
   try {
     await kanbanProjectContract.deleteTask(taskID);
     //const receipt: TransactionReceipt = await tx.wait();
-    //console.log(receipt.status);
 
     return true;
   } catch (error) {
@@ -267,7 +288,6 @@ export async function removeCategory(
   try {
     await kanbanProjectContract.deleteCategory(categoryIndex);
     //const receipt: TransactionReceipt = await tx.wait();
-    //console.log(receipt.status);
 
     return true;
   } catch (error) {

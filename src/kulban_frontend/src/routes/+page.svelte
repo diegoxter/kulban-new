@@ -25,11 +25,12 @@
 				body: JSON.stringify(data),
 			});
 			const res: App.Token = await response.json();
-			console.log(res);
+
 			if (!res.token) {
-				error = res.error;
+				error = res.error as string;
 				throw new Error("failed to authenticate");
 			}
+
 			token.token = res.token;
 			localStorage.setItem("authToken", res.token);
 			window.location.href = "/user";

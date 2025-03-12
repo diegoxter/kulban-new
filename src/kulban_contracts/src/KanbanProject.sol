@@ -36,6 +36,8 @@ contract KanbanProject is AccessControl {
         bool isActive;
     }
 
+    event NewTasksCreated(uint256[] newTasksID);
+
     mapping(uint256 => Task) private tasks;
     mapping(string => Member) private members;
 
@@ -106,6 +108,8 @@ contract KanbanProject is AccessControl {
                 newMembers[index]
             );
         }
+
+        emit NewTasksCreated(taskIndexes);
         return taskIndexes;
     }
 

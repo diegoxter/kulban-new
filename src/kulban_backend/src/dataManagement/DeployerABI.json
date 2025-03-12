@@ -32,6 +32,25 @@
 				{
 					"indexed": true,
 					"internalType": "address",
+					"name": "newAddress",
+					"type": "address"
+				},
+				{
+					"indexed": false,
+					"internalType": "string",
+					"name": "projectName",
+					"type": "string"
+				}
+			],
+			"name": "NewProjectDeployed",
+			"type": "event"
+		},
+		{
+			"anonymous": false,
+			"inputs": [
+				{
+					"indexed": true,
+					"internalType": "address",
 					"name": "previousOwner",
 					"type": "address"
 				},

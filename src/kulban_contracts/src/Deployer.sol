@@ -15,6 +15,8 @@ contract Deployer is Ownable {
         string projectName;
     }
 
+    event NewProjectDeployed(address indexed newAddress, string projectName);
+
     mapping(uint256 => address) private projectsAddressPerIndex;
 
     constructor() Ownable(msg.sender) {}
@@ -51,6 +53,7 @@ contract Deployer is Ownable {
         projectsAddressPerIndex[projectIndex] = address(newInstance);
         projectIndex++;
 
+        emit NewProjectDeployed(address(newInstance), _projectName);
         return address(newInstance);
     }
 

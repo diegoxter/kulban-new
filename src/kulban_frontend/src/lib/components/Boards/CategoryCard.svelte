@@ -6,7 +6,7 @@
 
 	async function addTaskClick() {
 		try {
-			const data = {
+			const data: { boardAddress: string; newTasks: App.Task[] } = {
 				boardAddress: address,
 				newTasks: [
 					{
@@ -28,12 +28,15 @@
 				},
 				body: JSON.stringify(data),
 			});
-			data.newTasks.forEach((newTask) => {
-				userBoards[boardIndex]?.tasks?.push(newTask);
-			});
 
 			const res = await response.json();
-			console.log(res);
+
+			if (res.error) throw new Error(res.error);
+
+			data.newTasks.forEach((newTask, index) => {
+				newTask.id = res.tasksIDs[index];
+				userBoards[boardIndex]?.tasks?.push(newTask);
+			});
 		} catch (error) {
 			console.log(error);
 		}
@@ -60,7 +63,8 @@
 			});
 
 			const res = await response.json();
-			console.log(res);
+
+			if (res.error) throw new Error(res.error);
 		} catch (error) {
 			console.log(error);
 		}

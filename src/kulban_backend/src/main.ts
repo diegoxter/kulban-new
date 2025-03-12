@@ -65,19 +65,6 @@ app.post("/login", async (req: Request, res) => {
   }
 });
 
-app.get("/get-boards", authenticate, async (req: Request, res: Response) => {
-  try {
-    // @ts-expect-error we sending this to the req
-    const userBoards = await getUserBoards(req.user.user);
-
-    res.json({ boards: userBoards });
-  } catch (error) {
-    const err = error as { status?: number; message: string };
-
-    res.status(err.status ?? 401).send({ error: err.message });
-  }
-});
-
 // These need authentication
 app.get("/get-boards", authenticate, async (req: Request, res: Response) => {
   try {
@@ -106,7 +93,7 @@ app.get(
     } catch (error) {
       const err = error as { status?: number; message: string };
 
-      res.status(err.status ?? 401).send({ error: err.message });
+      res.status(err.status ?? 404).send({ error: err.message });
     }
   },
 );
@@ -116,9 +103,11 @@ app.post("/create-board", authenticate, async (req: Request, res: Response) => {
 
   try {
     // @ts-expect-error we sending this to the req
-    await createBoard(req.user.user, newBoard);
-    // TO DO return the new board address
-    res.status(200).json({ message: "Board created successfully" });
+    const newAddress = await createBoard(req.user.user, newBoard);
+
+    res
+      .status(200)
+      .json({ message: "Board created successfully", newAddress: newAddress });
   } catch (error) {
     const err = error as { status?: number; message: string };
 
@@ -152,10 +141,11 @@ app.post("/create-tasks", authenticate, async (req: Request, res: Response) => {
   }: { boardAddress: string; newTasks: Omit<Task[], "id"> } = req.body;
 
   try {
-    // TO DO return the task id for the frontend
-    await createTasks(boardAddress, newTasks);
+    const taskIDs = await createTasks(boardAddress, newTasks);
 
-    res.status(200).json({ message: "Task created successfully" });
+    res
+      .status(200)
+      .json({ message: "Task created successfully", tasksIDs: taskIDs });
   } catch (error) {
     const err = error as { status?: number; message: string };
     res.status(err.status ?? 500).send({ error: err.message });

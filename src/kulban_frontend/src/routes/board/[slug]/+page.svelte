@@ -8,8 +8,6 @@
 	const storedBoardIndex = userBoards.findIndex((board) => board.address === boardAddress);
 	let tasks = $derived(userBoards[storedBoardIndex].tasks);
 
-	$inspect(tasks);
-	console.log(userBoards[storedBoardIndex]);
 	onMount(async () => {
 		let token = localStorage.getItem("authToken");
 
@@ -23,6 +21,9 @@
 			});
 
 			const res = await response.json();
+
+			if (res.error) throw new Error(res.error);
+
 			userBoards[storedBoardIndex] = res;
 		} catch (error) {
 			console.log(error);
@@ -47,8 +48,10 @@
 			});
 
 			const res = await response.json();
+
+			if (res.error) throw new Error(res.error);
+
 			userBoards[storedBoardIndex].categories.push(data.newCategory);
-			console.log(res);
 		} catch (error) {
 			console.log(error);
 		}
