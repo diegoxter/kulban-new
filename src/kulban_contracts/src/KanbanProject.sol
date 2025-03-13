@@ -72,6 +72,7 @@ contract KanbanProject is AccessControl {
         }
     }
 
+    // TO DO these should check the user as handled by the relayer
     // Content management
     function addCategory(
         string calldata newCategoryName

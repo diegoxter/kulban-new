@@ -4,11 +4,16 @@
 	import { userBoards } from "$lib/shared.svelte";
 	import CategoryCard from "$lib/components/Boards/CategoryCard.svelte";
 
-	const boardAddress = window?.location.pathname.split("/board/")[1];
-	const storedBoardIndex = userBoards.findIndex((board) => board.address === boardAddress);
-	let tasks = $derived(userBoards[storedBoardIndex].tasks);
-
+	let boardAddress = $state<string | null>(null);
+	let storedBoardIndex = $derived(
+		userBoards.length > 0 && boardAddress
+			? userBoards.findIndex((board) => board.address === boardAddress)
+			: 0,
+	);
+	let tasks = $derived(userBoards.length > 0 ? userBoards[storedBoardIndex].tasks : null);
+	$inspect(tasks);
 	onMount(async () => {
+		boardAddress = window?.location.pathname.split("/board/")[1];
 		let token = localStorage.getItem("authToken");
 
 		try {
@@ -58,24 +63,35 @@
 	}
 </script>
 
-<div style="display: flex; flex-direction: row; justify-content: space-between;">
-	<h1>{userBoards[storedBoardIndex].name}</h1>
+{#if tasks}
+	<div style="display: flex; flex-direction: row; justify-content: space-between;">
+		<a
+			href="/user/"
+			type="button"
+			style="border-radius: 5px; padding: 2px 8px; background-color: red;"
+		>
+			{"<-"}
+		</a>
+		<h1>{userBoards[storedBoardIndex].name}</h1>
 
-	<button type="button" class="btn-add-category" onclick={addCategoryClick}> Add category </button>
-</div>
+		<button type="button" class="btn-add-category" onclick={addCategoryClick}>
+			Add category
+		</button>
+	</div>
 
-<div class="category-card-holder">
-	{#if typeof tasks !== "undefined"}
-		{#each Object.values(userBoards[storedBoardIndex].categories) as categoryName}
-			<CategoryCard
-				address={boardAddress}
-				boardIndex={storedBoardIndex}
-				name={categoryName}
-				tasks={tasks.filter((task) => task.category === categoryName)}
-			/>
-		{/each}
-	{/if}
-</div>
+	<div class="category-card-holder">
+		{#if typeof tasks !== "undefined"}
+			{#each Object.values(userBoards[storedBoardIndex].categories) as categoryName}
+				<CategoryCard
+					address={boardAddress}
+					boardIndex={storedBoardIndex}
+					name={categoryName}
+					tasks={tasks.filter((task) => task.category === categoryName)}
+				/>
+			{/each}
+		{/if}
+	</div>
+{/if}
 
 <style>
 	.category-card-holder {

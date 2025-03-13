@@ -6,6 +6,12 @@
 
 	onMount(async () => {
 		let token = localStorage.getItem("authToken");
+		const storedData = localStorage.getItem("boardsData");
+		if (storedData && storedData !== "undefined") {
+			console.log(storedData);
+			const data = JSON.parse(storedData);
+			console.log(data);
+		}
 
 		try {
 			const response = await fetch(`${canisterURL}/get-boards`, {
@@ -16,14 +22,20 @@
 				},
 			});
 			const res = await response.json();
-
-			if (res.error) throw new Error(res.error);
-
-			if (res.boards.length !== userBoards.length) {
-				res.boards.forEach((board: App.Board) => {
-					userBoards.push(board);
-				});
+			if (res.error) {
+				if (res.message === "Access denied") {
+					window.location.href = "/";
+				} else {
+					throw new Error(res.message);
+				}
 			}
+
+			localStorage.setItem("boardsData", JSON.stringify(res.boards));
+			res.boards.forEach((board: App.Board, index: number) => {
+				//if (userBoards.findIndex((userBoard) => userBoard.address !== board.address)) {
+				userBoards[index] = board;
+				//}
+			});
 		} catch (error) {
 			console.log(error);
 		}

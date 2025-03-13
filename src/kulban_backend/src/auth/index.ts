@@ -58,11 +58,12 @@ export async function loginUser(username: string, password: string) {
   }
 }
 
+// TO DO We should authenticate with the smart contract too
 export function authenticate(req: Request, res: Response, next: NextFunction) {
   const token = req.headers["authorization"];
   if (!token)
     return res.status(401).json({
-      status: "error",
+      error: true,
       message: "Access denied",
       details: "No authorization",
     });
@@ -70,7 +71,7 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
   const userID = verifyToken(token.split(" ")[1]);
   if (!userID)
     return res.status(403).json({
-      status: "error",
+      error: true,
       message: "Access denied",
       details: "Invalid or expired token",
     });
